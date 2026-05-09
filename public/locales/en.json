@@ -1,0 +1,14 @@
+{
+  "locale": "en",
+  "name": "English",
+  "offline_title": "Offline | Nabha Learning",
+  "offline_heading": "You're Offline",
+  "offline_text": "It looks like you've lost your connection. Don't worry, you can still access your already cached lessons!",
+  "offline_button": "Go to Dashboard",
+  "dashboard": "Dashboard",
+  "scholarships": "Scholarships",
+  "schemes": "Government Schemes",
+  "career": "Career Roadmap",
+  "complaints": "Help / Complaints",
+  "mentors": "Mentors"
+}
