@@ -2,22 +2,30 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Question extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
 
     protected $fillable = [
-        'quiz_id', 'question_text', 'type',
+        'quiz_id',
+        'question_text', 'question_text_hi', 'question_text_pa',
+        'type',
         'option_a', 'option_b', 'option_c', 'option_d',
-        'correct_answer', 'explanation', 'marks', 'order',
+        'options_hi', 'options_pa',
+        'correct_answer',
+        'explanation', 'explanation_hi', 'explanation_pa',
+        'marks', 'order',
     ];
 
     protected $casts = [
-        'marks' => 'integer',
-        'order' => 'integer',
+        'marks'      => 'integer',
+        'order'      => 'integer',
+        'options_hi' => 'array',
+        'options_pa' => 'array',
     ];
 
     public function quiz()
@@ -42,6 +50,25 @@ class Question extends Model
             'd' => $this->option_d,
             default => null,
         };
+    }
+
+    /**
+     * Get localized option text for MCQ options.
+     * Options stored as ['a' => 'text', 'b' => 'text', ...]
+     */
+    public function getLocalizedOption(string $key): string
+    {
+        $locale = app()->getLocale();
+        $keyLower = strtolower($key);
+
+        if ($locale !== 'en') {
+            $optionsLocale = $this->{"options_{$locale}"};
+            if (is_array($optionsLocale) && !empty($optionsLocale[$keyLower])) {
+                return $optionsLocale[$keyLower];
+            }
+        }
+
+        return $this->getOptionAttribute($keyLower) ?? '';
     }
 
     public function getCorrectAnswerTextAttribute(): string

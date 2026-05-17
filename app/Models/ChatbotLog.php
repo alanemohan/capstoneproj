@@ -12,6 +12,7 @@ class ChatbotLog extends Model
     protected $fillable = [
         'user_id', 'message', 'response', 'intent',
         'subject', 'confidence', 'was_helpful', 'session_id',
+        'source', 'conversation_id',
     ];
 
     protected $casts = [

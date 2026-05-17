@@ -37,22 +37,27 @@
                   x-data="{ role: '{{ old('role', 'student') }}' }">
                 @csrf
 
-                {{-- Role selector --}}
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" @click="role='student'"
-                            :class="role==='student' ? 'border-primary-600 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-500'"
-                            class="p-3 border-2 rounded-xl text-sm font-medium text-center transition cursor-pointer">
-                        <div class="text-2xl mb-1">👨‍🎓</div>
-                        {{ __('messages.i_am_student') }}
-                    </button>
-                    <button type="button" @click="role='teacher'"
-                            :class="role==='teacher' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-500'"
-                            class="p-3 border-2 rounded-xl text-sm font-medium text-center transition cursor-pointer">
-                        <div class="text-2xl mb-1">👨‍🏫</div>
-                        {{ __('messages.i_am_teacher') }}
-                    </button>
+                {{-- Role selector (Robust with hidden radio) --}}
+                <div class="grid grid-cols-2 gap-3 mb-2">
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="role" value="student" x-model="role" 
+                               {{ old('role', 'student') === 'student' ? 'checked' : '' }} class="hidden">
+                        <div :class="role==='student' ? 'border-primary-600 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-500'"
+                             class="p-4 border-2 rounded-2xl text-sm font-bold text-center transition group-hover:border-primary-400">
+                            <div class="text-3xl mb-1">👨‍🎓</div>
+                            {{ __('messages.i_am_student') }}
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="role" value="teacher" x-model="role"
+                               {{ old('role') === 'teacher' ? 'checked' : '' }} class="hidden">
+                        <div :class="role==='teacher' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-500'"
+                             class="p-4 border-2 rounded-2xl text-sm font-bold text-center transition group-hover:border-emerald-400">
+                            <div class="text-3xl mb-1">👨‍🏫</div>
+                            {{ __('messages.i_am_teacher') }}
+                        </div>
+                    </label>
                 </div>
-                <input type="hidden" name="role" :value="role">
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.full_name') }}</label>
@@ -69,7 +74,7 @@
                 </div>
 
                 {{-- Student field --}}
-                <div x-show="role==='student'">
+                <div x-show="role==='student'" x-cloak style="display: none;">
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.your_class') }}</label>
                     <select name="class_level"
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
@@ -80,16 +85,27 @@
                     </select>
                 </div>
 
-                {{-- Teacher field --}}
-                <div x-show="role==='teacher'">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.subject_specialization') }}</label>
-                    <select name="subject_specialization"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
-                        <option value="">{{ __('messages.select_your_subject') }}</option>
-                        @foreach(['Mathematics','Science','English','Hindi','Social Studies','Physical Education'] as $subj)
-                            <option value="{{ $subj }}" {{ old('subject_specialization')===$subj ? 'selected':'' }}>{{ $subj }}</option>
-                        @endforeach
-                    </select>
+                {{-- Teacher fields --}}
+                <div x-show="role==='teacher'" x-cloak style="display: none;">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.subject_specialization') }}</label>
+                            <select name="subject_specialization"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
+                                <option value="">{{ __('messages.select_your_subject') }}</option>
+                                @foreach(['Mathematics','Science','English','Hindi','Social Studies','Physical Education'] as $subj)
+                                    <option value="{{ $subj }}" {{ old('subject_specialization')===$subj ? 'selected':'' }}>{{ $subj }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Qualification <span class="text-gray-400 font-normal">(e.g. B.Ed, M.Sc, B.Tech)</span></label>
+                            <input type="text" name="qualification" value="{{ old('qualification') }}"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+                                   placeholder="Your highest qualification">
+                        </div>
+                    </div>
                 </div>
 
                 <div>

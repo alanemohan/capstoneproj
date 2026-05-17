@@ -12,7 +12,7 @@ class QuizAttemptController extends Controller
     public function index(Request $request)
     {
         $student = auth()->user();
-        $query = Quiz::active()->with(['teacher', 'attempts' => function ($q) use ($student) {
+        $query = Quiz::active()->withCount('questions')->with(['teacher', 'attempts' => function ($q) use ($student) {
             $q->where('student_id', $student->id)->orderBy('created_at', 'desc');
         }])->where('class_level', $student->class_level);
 

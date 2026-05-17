@@ -37,12 +37,12 @@ class AuthController extends Controller
                 return back()->withErrors(['email' => __('messages.account_deactivated')]);
             }
 
-            // Teacher approval check
-            if ($user->isTeacher() && !$user->isApprovedTeacher()) {
+            // Approval check
+            if ($user->role !== 'admin' && ($user->status === 'pending' || $user->status === 'rejected')) {
                 Auth::logout();
                 $message = match($user->status) {
-                    'rejected' => __('messages.teacher_rejected'),
-                    default    => __('messages.teacher_pending_approval'),
+                    'rejected' => __('messages.account_rejected'),
+                    default    => __('messages.account_pending_approval'),
                 };
                 return back()->withErrors(['email' => $message]);
             }
@@ -77,6 +77,7 @@ class AuthController extends Controller
             'role'                   => ['required', 'in:student,teacher'],
             'class_level'            => ['required_if:role,student', 'nullable', 'string'],
             'subject_specialization' => ['required_if:role,teacher', 'nullable', 'string'],
+            'qualification'          => ['nullable', 'string', 'max:100'],
             'phone'                  => ['nullable', 'string', 'max:15'],
         ]);
 
@@ -89,9 +90,10 @@ class AuthController extends Controller
             'role'                   => $validated['role'],
             'class_level'            => $validated['class_level'] ?? null,
             'subject_specialization' => $validated['subject_specialization'] ?? null,
+            'qualification'          => $validated['qualification'] ?? null,
             'phone'                  => $validated['phone'] ?? null,
             'is_active'              => true,
-            'status'                 => $isTeacher ? 'pending' : null,
+            'status'                 => 'pending',
         ]);
 
         if ($isTeacher) {
@@ -100,6 +102,10 @@ class AuthController extends Controller
                 'success',
                 __('messages.teacher_registration_submitted')
             );
+        }
+
+        if ($user->status === 'pending') {
+            return redirect()->route('login')->with('success', 'Account registered successfully! Please wait for admin approval before logging in.');
         }
 
         Auth::login($user);

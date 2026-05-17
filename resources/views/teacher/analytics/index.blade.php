@@ -90,6 +90,7 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const weeklyData = @json($weeklyAttempts);
 const quizData = @json($quizPerformance->values());

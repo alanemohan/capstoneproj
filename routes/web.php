@@ -53,8 +53,12 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::get('/pending-approval', function () {
+    return view('auth.pending-approval');
+})->name('pending-approval')->middleware('auth');
+
 // Student Routes
-Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+Route::middleware(['auth', 'role:student', 'approved'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
 
     // Profile
@@ -70,6 +74,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::post('/courses/{course}/purchase', [StudentCourseController::class, 'purchase'])->name('courses.purchase')->middleware('throttle:checkout');
     Route::get('/courses/{course}/lessons/{lesson}', [StudentCourseController::class, 'lesson'])->name('courses.lesson');
     Route::post('/courses/{course}/lessons/{lesson}/complete', [StudentCourseController::class, 'completeLesson'])->name('courses.lesson.complete');
+    Route::post('/courses/{course}/reset-progress', [StudentCourseController::class, 'resetProgress'])->name('courses.reset');
     Route::post('/courses/{course}/refund', [StudentCourseController::class, 'requestRefund'])->name('courses.refund');
 
     // Cart
@@ -102,6 +107,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Chatbot
     Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot');
     Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat')->middleware('throttle:chatbot');
+    Route::post('/chatbot/new', [ChatbotController::class, 'newChat'])->name('chatbot.new');
+    Route::get('/chatbot/history', [ChatbotController::class, 'history'])->name('chatbot.history');
+    Route::get('/chatbot/conversations', [ChatbotController::class, 'conversations'])->name('chatbot.conversations');
     Route::post('/chatbot/feedback/{log}', [ChatbotController::class, 'feedback'])->name('chatbot.feedback');
 
     // New features
@@ -115,7 +123,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 });
 
 // Teacher Routes
-Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:teacher', 'approved'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', function () {
         $teacher = auth()->user();
         $lessonsCount   = \App\Models\Lesson::where('teacher_id', $teacher->id)->count();
@@ -201,6 +209,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Assignments
     Route::resource('assignments', AssignmentController::class);
     Route::post('/assignments/{assignment}/submissions/{submission}/grade', [AssignmentController::class, 'grade'])->name('assignments.grade');
+
+    // Chatbot widget (teacher)
+    Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat')->middleware('throttle:chatbot');
 });
 
 // Admin Routes
@@ -215,6 +226,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/teachers', [TeacherApprovalController::class, 'index'])->name('teachers');
     Route::patch('/teachers/{user}/approve', [TeacherApprovalController::class, 'approve'])->name('teachers.approve');
     Route::patch('/teachers/{user}/reject', [TeacherApprovalController::class, 'reject'])->name('teachers.reject');
+    Route::patch('/teachers/{user}/suspend', [TeacherApprovalController::class, 'suspend'])->name('teachers.suspend');
+    Route::delete('/teachers/{user}', [TeacherApprovalController::class, 'destroy'])->name('teachers.destroy');
 
     // Users
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
@@ -283,6 +296,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Announcements
     Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['create', 'show', 'edit']);
 
+    // Translation Management
+    Route::get('/translations', [\App\Http\Controllers\Admin\TranslationController::class, 'index'])->name('translations.index');
+    Route::post('/translations/retranslate', [\App\Http\Controllers\Admin\TranslationController::class, 'retranslate'])->name('translations.retranslate');
+    Route::post('/translations/bulk', [\App\Http\Controllers\Admin\TranslationController::class, 'bulkRetranslate'])->name('translations.bulk');
+    Route::put('/translations/{type}/{id}', [\App\Http\Controllers\Admin\TranslationController::class, 'update'])->name('translations.update');
+
     // Complaints
     Route::get('complaints', [\App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('complaints.index');
     Route::patch('complaints/{complaint}/status', [\App\Http\Controllers\Admin\ComplaintController::class, 'updateStatus'])->name('complaints.status');
@@ -291,4 +310,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('reconciliation', [\App\Http\Controllers\Admin\ReconciliationController::class, 'index'])->name('reconciliation.index');
     Route::patch('reconciliation/{enrollment}/refund/approve', [\App\Http\Controllers\Admin\ReconciliationController::class, 'approveRefund'])->name('reconciliation.refund.approve');
     Route::patch('reconciliation/{enrollment}/refund/reject', [\App\Http\Controllers\Admin\ReconciliationController::class, 'rejectRefund'])->name('reconciliation.refund.reject');
+
+    // Admin Chatbot log access
+    Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat')->middleware('throttle:chatbot');
 });

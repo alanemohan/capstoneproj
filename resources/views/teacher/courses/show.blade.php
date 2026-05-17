@@ -15,17 +15,19 @@
                 <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $sc[$course->status] ?? '' }}">{{ ucfirst($course->status) }}</span>
             </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-3">
             <a href="{{ route('teacher.courses.edit', $course) }}"
-               class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition">
+               class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all z-10">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 Edit Course
             </a>
             @if(in_array($course->status, ['draft', 'rejected']))
-                <form method="POST" action="{{ route('teacher.courses.submit', $course) }}">
+                <form method="POST" action="{{ route('teacher.courses.submit', $course) }}" class="m-0">
                     @csrf
                     <button type="submit"
-                            class="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition"
-                            onclick="return confirm('Submit for admin review?')">
+                            class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all z-10"
+                            onclick="return confirm('Ready to submit for admin review?')">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Submit for Review
                     </button>
                 </form>

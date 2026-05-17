@@ -45,13 +45,14 @@
                 </div>
             </div>
 
-            <form action="{{ route('student.payment.callback') }}" method="POST" class="space-y-4">
+            <form action="{{ route('student.payment.callback') }}" method="POST" id="paymentForm" class="space-y-4">
                 @csrf
+                <input type="hidden" name="status" id="paymentStatus" value="fail">
                 @foreach($enrollments as $enrollment)
                     <input type="hidden" name="enrollments[]" value="{{ $enrollment->id }}">
                 @endforeach
 
-                <button type="submit" name="status" value="success" 
+                <button type="button" onclick="submitPayment('success')"
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -59,14 +60,21 @@
                     Simulate Successful Payment
                 </button>
 
-                <button type="submit" name="status" value="fail" 
-                    class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-3 px-4 border border-red-200 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+                <button type="button" onclick="submitPayment('fail')"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                     Simulate Payment Failure
                 </button>
             </form>
+
+            <script>
+                function submitPayment(status) {
+                    document.getElementById('paymentStatus').value = status;
+                    document.getElementById('paymentForm').submit();
+                }
+            </script>
         </div>
 
         <div class="bg-gray-50 p-4 text-center border-t border-gray-100">

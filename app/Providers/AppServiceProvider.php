@@ -2,40 +2,37 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Request;
+use App\Models\Announcement;
+use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Question;
+use App\Models\Quiz;
+use App\Observers\ContentTranslationObserver;
+use App\Services\TranslationService;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->singleton(TranslationService::class, fn() => new TranslationService());
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
-        });
+        RateLimiter::for('login', fn(Request $r) => Limit::perMinute(5)->by($r->ip()));
+        RateLimiter::for('otp', fn(Request $r) => Limit::perMinute(3)->by($r->ip()));
+        RateLimiter::for('chatbot', fn(Request $r) => Limit::perMinute(10)->by($r->user()?->id ?: $r->ip()));
+        RateLimiter::for('checkout', fn(Request $r) => Limit::perMinute(5)->by($r->user()?->id ?: $r->ip()));
 
-        RateLimiter::for('otp', function (Request $request) {
-            return Limit::perMinute(3)->by($request->ip());
-        });
-
-        RateLimiter::for('chatbot', function (Request $request) {
-            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
-        });
-
-        RateLimiter::for('checkout', function (Request $request) {
-            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
-        });
+        Announcement::observe(ContentTranslationObserver::class);
+        Course::observe(ContentTranslationObserver::class);
+        Lesson::observe(ContentTranslationObserver::class);
+        Quiz::observe(ContentTranslationObserver::class);
+        Question::observe(ContentTranslationObserver::class);
+        \App\Models\LiveClass::observe(ContentTranslationObserver::class);
     }
 }

@@ -76,7 +76,7 @@
                 <p class="text-xs text-gray-400 mt-1">Enter 0 to make the course free.</p>
             </div>
 
-            <div x-data="{ imageUrl: '{{ isset($course) && $course->thumbnail ? asset(\"storage/\" . $course->thumbnail) : '' }}' }">
+            <div x-data="{ imageUrl: '{{ isset($course) ? $course->thumbnail_url : '' }}' }">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Thumbnail Image <span class="text-gray-400">(max 5MB)</span></label>
                 <input type="file" name="thumbnail" accept="image/jpeg,image/png,image/webp"
                        @change="imageUrl = URL.createObjectURL($event.target.files[0])"
@@ -100,13 +100,13 @@
             </ul>
         </div>
 
-        <div class="flex gap-3">
+        <div class="flex gap-3 pb-20">
             <button type="submit"
-                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold transition">
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold shadow-lg shadow-emerald-200/50 transition-all hover:-translate-y-0.5">
                 {{ isset($course) ? 'Save Changes' : 'Create Course' }}
             </button>
             <a href="{{ route('teacher.courses') }}"
-               class="px-6 py-3 border border-gray-300 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium">
+               class="px-6 py-3 border border-gray-300 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium flex items-center">
                 Cancel
             </a>
         </div>

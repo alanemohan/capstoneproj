@@ -169,6 +169,9 @@
             <span class="text-[10px] font-medium">{{ __('messages.my_profile') }}</span>
         </a>
     </nav>
+
+    {{-- Floating Chatbot Widget --}}
+    @include('components.chatbot-widget')
 </div>
 @endsection
 

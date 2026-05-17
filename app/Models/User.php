@@ -12,11 +12,11 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'role',
-        'class_level', 'subject_specialization',
+        'class_level', 'subject_specialization', 'qualification',
         'phone', 'school', 'is_active', 'avatar',
         'status', 'streak_count', 'last_login_at',
         'gender', 'address', 'section', 'language',
-        'mentor_id',
+        'mentor_id', 'availability',
     ];
 
     protected $hidden = ['password', 'remember_token'];

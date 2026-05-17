@@ -6,31 +6,47 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Nunito', 'Quicksand', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', 'Nunito', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Playful Primary Colors (Bright Azure/Sky) */
-    --color-primary-50: #f0f9ff;
-    --color-primary-100: #e0f2fe;
-    --color-primary-200: #bae6fd;
-    --color-primary-300: #7dd3fc;
-    --color-primary-400: #38bdf8;
-    --color-primary-500: #0ea5e9;
-    --color-primary-600: #0284c7;
-    --color-primary-700: #0369a1;
-    --color-primary-800: #075985;
-    --color-primary-900: #0c4a6e;
+    /* Enterprise Primary Colors (Deep Indigo/Slate) */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6; /* Modern Blue */
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
 
-    /* Extra rounded UI for children */
-    --radius-sm: 0.375rem;
-    --radius: 0.75rem;
-    --radius-md: 1rem;
-    --radius-lg: 1.5rem;
-    --radius-xl: 2rem;
-    --radius-2xl: 2.5rem;
-    --radius-3xl: 3rem;
+    /* Subtle, professional border radii */
+    --radius-sm: 0.25rem;
+    --radius: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.5rem;
 
-    --default-transition-duration: 300ms;
+    --default-transition-duration: 200ms;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Gurmukhi:wght@400;700&display=swap');
+
+/* Language specific font overrides */
+html[lang="hi"] {
+    font-family: 'Noto Sans Devanagari', 'Nunito', sans-serif !important;
+}
+
+html[lang="pa"] {
+    font-family: 'Noto Sans Gurmukhi', 'Nunito', sans-serif !important;
+}
+
+.font-devanagari {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.font-gurmukhi {
+    font-family: 'Noto Sans Gurmukhi', sans-serif;
+}

@@ -124,6 +124,7 @@ return [
     // Sidebar & CMS Labels
     'content_review' => 'ਸਮੱਗਰੀ ਦੀ ਸਮੀਖਿਆ',
     'course_approval' => 'ਕੋਰਸ ਦੀ ਪ੍ਰਵਾਨਗੀ',
+    'quiz_approval' => 'ਕੁਇਜ਼ ਦੀ ਪ੍ਰਵਾਨਗੀ',
     'scholarships_cms' => 'ਵਜ਼ੀਫ਼ਾ ਪ੍ਰਬੰਧਨ',
     'gov_schemes_cms' => 'ਸਰਕਾਰੀ ਸਕੀਮ ਪ੍ਰਬੰਧਨ',
     'student_reports' => 'ਵਿਦਿਆਰਥੀ ਰਿਪੋਰਟਾਂ',
@@ -295,6 +296,9 @@ return [
     'scheme_added_success' => 'ਸਕੀਮ ਸਫਲਤਾਪੂਰਵਕ ਜੋੜੀ ਗਈ।',
     'scheme_updated_success' => 'ਸਕੀਮ ਸਫਲਤਾਪੂਰਵਕ ਅਪਡੇਟ ਹੋਈ।',
     'scheme_deleted_success' => 'ਸਕੀਮ ਮਿਟਾਈ ਗਈ।',
+    'announcement_added_success' => 'ਘੋਸ਼ਣਾ ਸਫਲਤਾਪੂਰਵਕ ਜੋੜੀ ਗਈ।',
+    'announcement_updated_success' => 'ਘੋਸ਼ਣਾ ਸਫਲਤਾਪੂਰਵਕ ਅਪਡੇਟ ਹੋਈ।',
+    'announcement_deleted_success' => 'ਘੋਸ਼ਣਾ ਮਿਟਾਈ ਗਈ।',
     'complaint_status_updated' => 'ਸ਼ਿਕਾਇਤ ਦੀ ਸਥਿਤੀ ਅਪਡੇਟ ਕੀਤੀ ਗਈ।',
     'account_deactivated' => 'ਤੁਹਾਡਾ ਖਾਤਾ ਨਿਸ਼ਕ੍ਰਿਯ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਐਡਮਿਨ ਨਾਲ ਸੰਪਰਕ ਕਰੋ।',
     'teacher_rejected' => 'ਤੁਹਾਡਾ ਅਧਿਆਪਕ ਖਾਤਾ ਰੱਦ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਐਡਮਿਨ ਨਾਲ ਸੰਪਰਕ ਕਰੋ।',

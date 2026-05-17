@@ -29,7 +29,7 @@
     @endif
 
     <form method="POST" action="{{ route('teacher.courses.store-lesson', $course) }}"
-          enctype="multipart/form-data" class="space-y-5">
+          enctype="multipart/form-data" class="space-y-5" id="lesson-form">
         @csrf
 
         {{-- ── Lesson Details ── --}}
@@ -146,12 +146,16 @@
                                     <input type="file"
                                            :name="'contents[' + index + '][file]'"
                                            :accept="acceptAttr(block.type)"
-                                           @change="block.fileName = $event.target.files[0]?.name ?? ''"
+                                           @change="onFileChange($event, block)"
                                            class="hidden">
                                 </label>
-                                <p x-show="block.fileName" class="text-xs text-emerald-600 mt-1.5">
-                                    Selected: <span x-text="block.fileName"></span>
-                                </p>
+                                <div class="flex items-center justify-between mt-1.5">
+                                    <p x-show="block.fileName" class="text-xs text-emerald-600">
+                                        ✓ <span x-text="block.fileName"></span>
+                                        <span x-show="block.fileSize" class="text-gray-400 ml-1">(<span x-text="block.fileSize"></span>)</span>
+                                    </p>
+                                    <p x-show="block.fileSizeWarning" class="text-xs text-red-500 font-semibold" x-text="block.fileSizeWarning"></p>
+                                </div>
                             </div>
 
                             {{-- Text content --}}
@@ -189,9 +193,16 @@
 
         {{-- Submit --}}
         <div class="flex gap-3">
-            <button type="submit"
-                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-2xl font-bold transition">
-                Add Lesson to Course
+            <button type="submit" id="submit-btn"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-2xl font-bold transition flex items-center justify-center gap-2">
+                <span id="btn-text">Add Lesson to Course</span>
+                <span id="btn-spinner" class="hidden">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    Uploading…
+                </span>
             </button>
             <a href="{{ route('teacher.courses.show', $course) }}"
                class="px-6 py-3.5 border border-gray-300 text-gray-600 rounded-2xl hover:bg-gray-50 transition font-medium">
@@ -206,10 +217,10 @@
 function lessonBuilder() {
     return {
         blockCounter: 1,
-        blocks: [{ id: 0, type: 'pdf', title: '', fileName: '', charCount: 0 }],
+        blocks: [{ id: 0, type: 'pdf', title: '', fileName: '', fileSize: '', charCount: 0 }],
 
         addBlock() {
-            this.blocks.push({ id: ++this.blockCounter, type: 'pdf', title: '', fileName: '', charCount: 0 });
+            this.blocks.push({ id: ++this.blockCounter, type: 'pdf', title: '', fileName: '', fileSize: '', charCount: 0 });
         },
 
         removeBlock(index) {
@@ -218,11 +229,24 @@ function lessonBuilder() {
             }
         },
 
+        onFileChange(event, block) {
+            const file = event.target.files[0];
+            if (!file) return;
+            block.fileName = file.name;
+            const mb = (file.size / 1024 / 1024).toFixed(1);
+            block.fileSize = mb + ' MB';
+            if (file.size > 100 * 1024 * 1024) {
+                block.fileSizeWarning = '⚠️ File exceeds 100MB limit!';
+            } else {
+                block.fileSizeWarning = '';
+            }
+        },
+
         acceptLabel(type) {
             const labels = {
                 pdf:   'PDF files only',
-                video: 'MP4 or WebM',
-                image: 'JPG, PNG, GIF',
+                video: 'MP4, WebM, MOV, AVI (max 100MB)',
+                image: 'JPG, PNG, GIF, WebP',
                 text:  '',
             };
             return labels[type] ?? '';
@@ -231,7 +255,7 @@ function lessonBuilder() {
         acceptAttr(type) {
             const attrs = {
                 pdf:   '.pdf',
-                video: '.mp4,.webm',
+                video: '.mp4,.webm,.mov,.avi',
                 image: '.jpg,.jpeg,.png,.gif,.webp',
                 text:  '',
             };
@@ -239,6 +263,16 @@ function lessonBuilder() {
         },
     };
 }
+
+// Show spinner on submit
+document.getElementById('lesson-form')?.addEventListener('submit', function() {
+    const btn  = document.getElementById('submit-btn');
+    const text = document.getElementById('btn-text');
+    const spin = document.getElementById('btn-spinner');
+    if (btn) btn.disabled = true;
+    if (text) text.classList.add('hidden');
+    if (spin) spin.classList.remove('hidden');
+});
 </script>
 @endpush
 @endsection

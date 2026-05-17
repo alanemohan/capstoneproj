@@ -53,6 +53,12 @@
                     {{ $stats['pending_courses'] }} {{ __('messages.courses') }} {{ __('messages.pending_review') }}
                 </a>
             @endif
+            @if(($stats['pending_quizzes'] ?? 0) > 0)
+                <a href="{{ route('admin.quizzes', ['status' => 'pending']) }}"
+                   class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition">
+                    {{ $stats['pending_quizzes'] }} Quizzes {{ __('messages.pending_review') }}
+                </a>
+            @endif
             @if($stats['pending_students'] === 0 && $stats['pending_teachers'] === 0 && $stats['pending_lessons'] === 0 && $stats['pending_courses'] === 0)
                 <span class="inline-flex items-center gap-1.5 bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
                     {{ __('messages.all_approvals_up_to_date') }}
@@ -87,6 +93,24 @@
     </div>
 
     {{-- ── Charts Row ── --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {{-- Weekly Activity --}}
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 class="font-semibold text-gray-800 mb-4">{{ __('messages.weekly_activity') }}</h3>
+            <div class="relative" style="height:250px">
+                <canvas id="weeklyActivityChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Subject Performance --}}
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 class="font-semibold text-gray-800 mb-4">{{ __('messages.subject_performance') }}</h3>
+            <div class="relative" style="height:250px">
+                <canvas id="subjectStatsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {{-- Monthly Registrations --}}
@@ -119,6 +143,51 @@
             </div>
             <div class="relative" style="height:200px">
                 <canvas id="roleChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Analysis Row ── --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {{-- Student Analysis --}}
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="p-2 bg-blue-100 text-blue-600 rounded-lg">🎓</span>
+                Student Analysis
+            </h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Active Students</span>
+                    <span class="text-sm font-bold text-gray-900">{{ number_format($stats['active_students']) }}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $stats['total_students'] > 0 ? ($stats['active_students'] / $stats['total_students'] * 100) : 0 }}%"></div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Inactive</span>
+                    <span class="text-sm font-bold text-gray-900">{{ number_format($stats['inactive_students']) }}</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Teacher Analysis --}}
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">👨‍🏫</span>
+                Teacher Analysis
+            </h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Active Teachers</span>
+                    <span class="text-sm font-bold text-gray-900">{{ number_format($stats['active_teachers']) }}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="bg-emerald-600 h-2 rounded-full" style="width: {{ $stats['total_teachers'] > 0 ? ($stats['active_teachers'] / $stats['total_teachers'] * 100) : 0 }}%"></div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Inactive</span>
+                    <span class="text-sm font-bold text-gray-900">{{ number_format($stats['inactive_teachers']) }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -161,7 +230,7 @@
                 @foreach($recentCourses as $course)
                     <div class="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors">
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ $course->title }}</p>
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $course->getLocalized('title') }}</p>
                             <p class="text-xs text-gray-400">{{ $course->teacher->name }} · {{ $course->enrollments_count }} enrolled</p>
                         </div>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap
@@ -186,7 +255,7 @@
                 @foreach($recentLessons as $lesson)
                     <div class="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors">
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate">{{ $lesson->title }}</p>
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $lesson->getLocalized('title') }}</p>
                             <p class="text-xs text-gray-400">by {{ $lesson->teacher->name }}</p>
                         </div>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap
@@ -203,127 +272,221 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const regData     = @json($monthlyRegistrations);
-const revenueData = @json($monthlyRevenue);
-const roleData    = @json($roleDistribution);
+document.addEventListener('DOMContentLoaded', () => {
+    const regData     = @json($monthlyRegistrations);
+    const revenueData = @json($monthlyRevenue);
+    const roleData    = @json($roleDistribution);
+    const weeklyActivity = @json($weeklyActivity);
+    const subjectStats = @json($subjectStats);
 
-/* ── Shared chart defaults ── */
-Chart.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
-Chart.defaults.font.size   = 11;
-Chart.defaults.color       = '#6b7280';
+    const initCharts = () => {
+        if (typeof Chart === 'undefined') {
+            setTimeout(initCharts, 100);
+            return;
+        }
 
-const gridColor  = '#f3f4f6';
-const baseOpts   = (yLabel) => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            backgroundColor: '#1f2937',
-            titleColor: '#f9fafb',
-            bodyColor: '#d1d5db',
-            padding: 10,
-            cornerRadius: 8,
-            displayColors: false,
-        },
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            grid: { color: gridColor },
-            ticks: { precision: 0 },
-            title: yLabel ? { display: false } : undefined,
-        },
-        x: { grid: { display: false } },
-    },
-});
+        /* ── Weekly Activity Multi-Bar Chart ── */
+        const weeklyCtx = document.getElementById('weeklyActivityChart');
+        if (weeklyCtx) {
+            new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(weeklyActivity),
+                    datasets: [
+                        {
+                            label: 'Enrollments',
+                            data: Object.values(weeklyActivity).map(d => d.enrollments),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Attempts',
+                            data: Object.values(weeklyActivity).map(d => d.attempts),
+                            backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Completions',
+                            data: Object.values(weeklyActivity).map(d => d.completions),
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 20 } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
 
-/* ── Registrations bar chart ── */
-new Chart(document.getElementById('regChart'), {
-    type: 'bar',
-    data: {
-        labels: Object.keys(regData),
-        datasets: [{
-            label: @json(__('messages.chart_registrations')),
-            data: Object.values(regData),
-            backgroundColor: 'rgba(99, 102, 241, 0.8)',
-            hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
-            borderRadius: 6,
-            borderSkipped: false,
-        }],
-    },
-    options: baseOpts(),
-});
+        /* ── Subject Performance Radar Chart ── */
+        const subjectCtx = document.getElementById('subjectStatsChart');
+        if (subjectCtx) {
+            new Chart(subjectCtx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(subjectStats),
+                    datasets: [{
+                        label: 'Avg Score %',
+                        data: Object.values(subjectStats),
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: { beginAtZero: true, max: 100, ticks: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
 
-/* ── Revenue area chart ── */
-new Chart(document.getElementById('revenueChart'), {
-    type: 'line',
-    data: {
-        labels: Object.keys(revenueData),
-        datasets: [{
-            label: @json(__('messages.revenue')) + ' (₹)',
-            data: Object.values(revenueData),
-            borderColor: 'rgba(16, 185, 129, 1)',
-            backgroundColor: (ctx) => {
-                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
-                g.addColorStop(0,   'rgba(16,185,129,.25)');
-                g.addColorStop(1,   'rgba(16,185,129,.02)');
-                return g;
+        /* ── Shared chart defaults ── */
+        Chart.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
+        Chart.defaults.font.size   = 11;
+        Chart.defaults.color       = '#6b7280';
+
+        const gridColor  = '#f3f4f6';
+        const baseOpts   = (yLabel) => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1f2937',
+                    titleColor: '#f9fafb',
+                    bodyColor: '#d1d5db',
+                    padding: 10,
+                    cornerRadius: 8,
+                    displayColors: false,
+                },
             },
-            fill: true,
-            tension: 0.45,
-            pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }],
-    },
-    options: baseOpts(),
-});
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { precision: 0 },
+                    title: yLabel ? { display: false } : undefined,
+                },
+                x: { grid: { display: false } },
+            },
+        });
 
-/* ── Role donut ── */
-new Chart(document.getElementById('roleChart'), {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(roleData),
-        datasets: [{
-            data: Object.values(roleData),
-            backgroundColor: [
-                'rgba(59,  130, 246, .85)',
-                'rgba(16,  185, 129, .85)',
-                'rgba(107, 114, 128, .85)',
-            ],
-            hoverBackgroundColor: [
-                'rgba(59,  130, 246, 1)',
-                'rgba(16,  185, 129, 1)',
-                'rgba(107, 114, 128, 1)',
-            ],
-            borderWidth: 3,
-            borderColor: '#fff',
-            hoverBorderWidth: 3,
-        }],
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: { boxWidth: 10, padding: 14, usePointStyle: true, pointStyleWidth: 8 },
-            },
-            tooltip: {
-                backgroundColor: '#1f2937',
-                titleColor: '#f9fafb',
-                bodyColor: '#d1d5db',
-                padding: 10,
-                cornerRadius: 8,
-            },
-        },
-    },
+        /* ── Registrations bar chart ── */
+        const regCtx = document.getElementById('regChart');
+        if (regCtx) {
+            new Chart(regCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(regData),
+                    datasets: [{
+                        label: @json(__('messages.chart_registrations')),
+                        data: Object.values(regData),
+                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                        hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }],
+                },
+                options: baseOpts(),
+            });
+        }
+
+        /* ── Revenue area chart ── */
+        const revCtx = document.getElementById('revenueChart');
+        if (revCtx) {
+            new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(revenueData),
+                    datasets: [{
+                        label: @json(__('messages.revenue')) + ' (₹)',
+                        data: Object.values(revenueData),
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: (ctx) => {
+                            const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+                            g.addColorStop(0,   'rgba(16,185,129,.25)');
+                            g.addColorStop(1,   'rgba(16,185,129,.02)');
+                            return g;
+                        },
+                        fill: true,
+                        tension: 0.45,
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }],
+                },
+                options: baseOpts(),
+            });
+        }
+
+        /* ── Role donut ── */
+        const roleCtx = document.getElementById('roleChart');
+        if (roleCtx) {
+            new Chart(roleCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(roleData),
+                    datasets: [{
+                        data: Object.values(roleData),
+                        backgroundColor: [
+                            'rgba(59,  130, 246, .85)',
+                            'rgba(16,  185, 129, .85)',
+                            'rgba(107, 114, 128, .85)',
+                        ],
+                        hoverBackgroundColor: [
+                            'rgba(59,  130, 246, 1)',
+                            'rgba(16,  185, 129, 1)',
+                            'rgba(107, 114, 128, 1)',
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#fff',
+                        hoverBorderWidth: 3,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, padding: 14, usePointStyle: true, pointStyleWidth: 8 },
+                        },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            titleColor: '#f9fafb',
+                            bodyColor: '#d1d5db',
+                            padding: 10,
+                            cornerRadius: 8,
+                        },
+                    },
+                },
+            });
+        }
+    };
+
+    initCharts();
 });
 </script>
 @endpush

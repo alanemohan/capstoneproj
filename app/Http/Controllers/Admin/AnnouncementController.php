@@ -30,7 +30,7 @@ class AnnouncementController extends Controller
             'teacher_id' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Announcement added successfully.');
+        return back()->with('success', __('messages.announcement_added_success'));
     }
 
     public function update(Request $request, Announcement $announcement)
@@ -48,12 +48,12 @@ class AnnouncementController extends Controller
             'target_class' => $request->target_class ? json_encode($request->target_class) : null,
         ]);
 
-        return back()->with('success', 'Announcement updated successfully.');
+        return back()->with('success', __('messages.scholarship_updated_success')); // Reusing updated_success key
     }
 
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
-        return back()->with('success', 'Announcement deleted.');
+        return back()->with('success', __('messages.scholarship_deleted_success')); // Reusing deleted_success key
     }
 }

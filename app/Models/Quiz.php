@@ -2,36 +2,39 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Quiz extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
 
     protected $fillable = [
-        'teacher_id', 'lesson_id', 'title', 'description',
+        'teacher_id', 'lesson_id',
+        'title', 'title_hi', 'title_pa',
+        'description', 'description_hi', 'description_pa',
         'subject', 'class_level', 'time_limit', 'passing_marks',
         'total_marks', 'status', 'max_attempts',
-        'approved_by', 'approved_at',
+        'approved_by', 'approved_at', 'translation_pending',
     ];
 
     protected $casts = [
-        'time_limit' => 'integer',
-        'passing_marks' => 'integer',
-        'total_marks' => 'integer',
-        'max_attempts' => 'integer',
-        'approved_at' => 'datetime',
+        'time_limit'          => 'integer',
+        'passing_marks'       => 'integer',
+        'total_marks'         => 'integer',
+        'max_attempts'        => 'integer',
+        'approved_at'         => 'datetime',
+        'translation_pending' => 'boolean',
     ];
 
     protected static function booted(): void
     {
         static::saving(function (Quiz $quiz): void {
-            // Prevent non-admins from activating quizzes directly
             if ($quiz->isDirty('status') && $quiz->status === 'active') {
                 if (!auth()->check() || auth()->user()->role !== 'admin') {
-                    $quiz->status = 'pending';
+                    $quiz->status     = 'pending';
                     $quiz->approved_by = null;
                     $quiz->approved_at = null;
                 }

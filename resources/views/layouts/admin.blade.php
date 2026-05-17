@@ -90,6 +90,7 @@
                                 __('messages.learning') => [
                                     ['route' => 'admin.content',     'label' => __('messages.content_review')],
                                     ['route' => 'admin.courses',     'label' => __('messages.course_approval')],
+                                    ['route' => 'admin.quizzes',     'label' => __('messages.quiz_approval')],
                                     ['route' => 'admin.scholarships.index', 'label' => __('messages.scholarships_cms')],
                                     ['route' => 'admin.schemes.index',      'label' => __('messages.gov_schemes_cms')],
                                 ],
@@ -109,7 +110,6 @@
                                     ['route' => 'admin.teachers_manager.index', 'label' => __('messages.teacher_master')],
                                     ['route' => 'admin.mentor-management.index', 'label' => __('messages.mentor_management')],
                                     ['route' => 'admin.teachers',    'label' => __('messages.teacher_approvals')],
-                                    ['route' => 'admin.audit-logs',  'label' => __('messages.system_audit_logs')],
                                 ]
                             ];
                         @endphp
@@ -140,6 +140,9 @@
             @yield('admin-content')
         </main>
     </div>
+
+    {{-- Floating Chatbot Widget --}}
+    @include('components.chatbot-widget')
 </div>
 @endsection
 

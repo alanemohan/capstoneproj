@@ -98,7 +98,6 @@
                                     ['route' => 'teacher.quizzes.create',   'label' => __('messages.create_quiz')],
                                     ['route' => 'teacher.analytics',        'label' => __('messages.view_analytics')],
                                     ['route' => 'teacher.student.progress', 'label' => __('messages.student_progress')],
-                                    ['route' => 'teacher.reports',          'label' => __('messages.reports')],
                                 ],
                                 __('messages.communication') => [
                                     ['route' => 'teacher.announcements.index', 'label' => __('messages.announcements')],
@@ -133,10 +132,13 @@
 
         <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden" x-cloak></div>
 
-        <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8">
+        <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 pb-32">
             @yield('teacher-content')
         </main>
     </div>
+
+    {{-- Floating Chatbot Widget --}}
+    @include('components.chatbot-widget')
 </div>
 @endsection
 

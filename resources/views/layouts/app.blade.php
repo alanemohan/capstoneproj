@@ -18,11 +18,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -73,19 +68,69 @@
             color: #9ca3af;
         }
     </style>
+
+    <!-- Alpine.js CDN (Backup/Primary for reliability) -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .markdown-body h2 { font-size: 1.25rem; font-weight: 700; margin: .75rem 0 .5rem; }
+        .markdown-body p  { margin-bottom: .5rem; line-height: 1.6; }
+        /* ... other styles ... */
+    </style>
     @stack('styles')
+    
+    <script>
+    /* ─────────────────────────────────────────────────────────────────────────────
+       Global Helper Functions
+    ───────────────────────────────────────────────────────────────────────────── */
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('toastSystem', () => ({
+            toasts: [],
+            _id: 0,
+            init() {
+                @if(session('success')) this._push('success', @json(session('success'))); @endif
+                @if(session('error')) this._push('error', @json(session('error'))); @endif
+                @if(session('info')) this._push('info', @json(session('info'))); @endif
+                @if($errors->any()) this._push('error', @json($errors->first())); @endif
+                window.toast = (type, message) => this._push(type, message);
+                window.addEventListener('toast', e => this._push(e.detail.type, e.detail.message));
+            },
+            _push(type, message) {
+                const ttl = type === 'error' ? 6000 : 4500;
+                const id = ++this._id;
+                this.toasts.push({ id, type, message, visible: true, progress: 100, ttl });
+                setTimeout(() => {
+                    const t = this.toasts.find(t => t.id === id);
+                    if (t) t.progress = 0;
+                }, 50);
+                setTimeout(() => this.dismiss({ id }), ttl);
+            },
+            dismiss(toast) {
+                const t = this.toasts.find(t => t.id === toast.id);
+                if (t) t.visible = false;
+                setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== toast.id); }, 300);
+            }
+        }));
+    });
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const isHide = input.type === 'password';
+        input.type = isHide ? 'text' : 'password';
+        const showIcon = document.getElementById(inputId + '-eye-show');
+        const hideIcon = document.getElementById(inputId + '-eye-hide');
+        if (showIcon) showIcon.classList.toggle('hidden', isHide);
+        if (hideIcon) hideIcon.classList.toggle('hidden', !isHide);
+    }
+    </script>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans antialiased">
 
-<!-- ── Offline Banner ── -->
-<div class="offline-banner fixed top-0 inset-x-0 z-50 bg-yellow-500 text-white text-center py-2 text-sm font-medium items-center justify-center gap-2">
-    {{ __('messages.offline_message') }}
-</div>
-
 <!-- ── Global Toast Notifications ── -->
 <div
-    x-data="toastSystem()"
-    x-init="boot()"
+    x-data="toastSystem"
     class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 w-80 pointer-events-none"
     aria-live="polite"
     aria-atomic="false"
@@ -99,7 +144,7 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
             x-transition:leave-end="opacity-0 translate-x-6 scale-95"
-            class="pointer-events-auto flex items-start gap-3 px-4 py-3.5 rounded-xl shadow-lg border text-sm font-medium"
+            class="pointer-events-auto relative overflow-hidden flex items-start gap-3 px-4 py-3.5 rounded-xl shadow-lg border text-sm font-medium"
             :class="{
                 'bg-emerald-50 border-emerald-200 text-emerald-800': t.type === 'success',
                 'bg-red-50    border-red-200    text-red-800'   : t.type === 'error',
@@ -108,13 +153,14 @@
             role="alert"
         >
             <!-- Progress bar -->
-            <div class="absolute bottom-0 left-0 h-0.5 rounded-b-xl transition-all ease-linear"
+            <div class="absolute bottom-0 left-0 h-0.5 transition-all ease-linear"
                  :class="{
                      'bg-emerald-400': t.type === 'success',
                      'bg-red-400'    : t.type === 'error',
                      'bg-blue-400'   : t.type === 'info',
                  }"
-                 :style="`width:${t.progress}%; transition-duration:${t.ttl}ms`"></div>
+                 :style="`width:${t.progress}%; transition-duration:${t.ttl}ms`"
+            ></div>
 
             <p class="flex-1 leading-snug" x-text="t.message"></p>
             <button @click="dismiss(t)" class="flex-shrink-0 opacity-40 hover:opacity-80 transition ml-1 text-lg leading-none font-bold">&times;</button>
@@ -144,69 +190,9 @@
 @stack('scripts')
 <script>
 /* ─────────────────────────────────────────────────────────────────────────────
-   Toast System
-   Usage from JS:  window.toast('success', 'Message here')
-                   window.toast('error',   'Something went wrong')
-                   window.toast('info',    'Heads up!')
-───────────────────────────────────────────────────────────────────────────── */
-function toastSystem() {
-    return {
-        toasts: [],
-        _id: 0,
-
-        boot() {
-            // Server-side flash messages
-            @if(session('success'))
-            this._push('success', @json(session('success')));
-            @endif
-            @if(session('error'))
-            this._push('error', @json(session('error')));
-            @endif
-            @if(session('info'))
-            this._push('info', @json(session('info')));
-            @endif
-            @if(session('warning'))
-            this._push('info', @json(session('warning')));
-            @endif
-            // Validation errors → show first error as a toast
-            @if($errors->any())
-            this._push('error', @json($errors->first()));
-            @endif
-
-            // JS API: window.toast('success', 'msg')
-            window.toast = (type, message) => this._push(type, message);
-
-            // Listen for event-based toasts
-            window.addEventListener('toast', e => this._push(e.detail.type, e.detail.message));
-        },
-
-        _push(type, message) {
-            const ttl  = type === 'error' ? 6000 : 4500;
-            const id    = ++this._id;
-            this.toasts.push({ id, type, message, visible: true, progress: 100, ttl });
-
-            // Shrink progress bar
-            requestAnimationFrame(() => {
-                const t = this.toasts.find(t => t.id === id);
-                if (t) t.progress = 0;
-            });
-
-            setTimeout(() => this.dismiss({ id }), ttl);
-        },
-
-        dismiss(toast) {
-            const t = this.toasts.find(t => t.id === toast.id);
-            if (t) t.visible = false;
-            setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== toast.id); }, 300);
-        },
-    };
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
    Global Form Loading State
 ───────────────────────────────────────────────────────────────────────────── */
 document.addEventListener('submit', function (e) {
-    // Skip forms with data-no-loading (filter/search GET forms)
     if (e.target.hasAttribute('data-no-loading')) return;
     const btn = e.target.querySelector('[type="submit"]');
     if (!btn) return;
@@ -220,7 +206,6 @@ document.addEventListener('submit', function (e) {
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
         </svg>{{ __('messages.saving') }}`;
 
-    // Restore after 5 s (handles validation redirect back)
     setTimeout(() => {
         btn.disabled = false;
         btn.classList.remove('btn-loading');
@@ -235,9 +220,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => {
-                console.log('SW Registered:', reg.scope);
-                
-                // Check for updates
                 reg.onupdatefound = () => {
                     const installingWorker = reg.installing;
                     installingWorker.onstatechange = () => {

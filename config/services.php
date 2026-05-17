@@ -44,4 +44,24 @@ return [
         'timeout' => env('OTP_SMS_TIMEOUT', 8),
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+    ],
+
+    'groq' => [
+        'key'   => env('GROQ_API_KEY'),
+        'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+    ],
+
+    'ollama' => [
+        'url'   => env('OLLAMA_URL', 'http://localhost:11434'),
+        'model' => env('OLLAMA_MODEL', 'llama3.2'),
+    ],
+
+    'ai_chatbot' => [
+        'primary'  => env('AI_CHATBOT_PRIMARY', 'groq'),
+        'fallback' => env('AI_CHATBOT_FALLBACK', 'gemini'),
+        'offline'  => env('AI_CHATBOT_OFFLINE', 'ollama'),
+    ],
+
 ];

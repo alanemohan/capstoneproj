@@ -7,6 +7,7 @@ use App\Models\ChatbotLog;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
+use App\Models\ProgressReport;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\User;
@@ -23,27 +24,30 @@ class AdminController extends Controller
             : 6;
 
         // Platform-wide counts — cached for 5 minutes, invalidated on demand
-        $stats = Cache::remember('admin.dashboard.stats', 300, function () {
-            return [
-                'total_students'    => User::where('role', 'student')->count(),
-                'pending_students'  => User::where('role', 'student')->where('status', 'pending')->count(),
-                'total_teachers'    => User::where('role', 'teacher')->count(),
-                'pending_teachers'  => User::where('role', 'teacher')->where('status', 'pending')->count(),
-                'total_lessons'     => Lesson::count(),
-                'pending_lessons'   => Lesson::where('status', 'pending')->count(),
-                'total_quizzes'     => Quiz::count(),
-                'total_attempts'    => QuizAttempt::where('status', 'completed')->count(),
-                'chatbot_queries'   => ChatbotLog::count(),
-                'active_users'      => User::where('is_active', true)->count(),
-                'total_courses'     => Course::count(),
-                'published_courses' => Course::where('status', 'published')->count(),
-                'pending_courses'   => Course::where('status', 'pending')->count(),
-                'total_enrollments' => Enrollment::count(),
-                'total_revenue'     => (float) \App\Models\Payment::sum('amount'),
-                'refunds_requested' => Enrollment::where('refund_status', 'requested')->count(),
-                'refunds_completed' => Enrollment::whereIn('refund_status', ['partial', 'full'])->count(),
-            ];
-        });
+        $stats = [
+            'total_students'    => User::where('role', 'student')->count(),
+            'pending_students'  => User::where('role', 'student')->where('status', 'pending')->count(),
+            'total_teachers'    => User::where('role', 'teacher')->count(),
+            'pending_teachers'  => User::where('role', 'teacher')->where('status', 'pending')->count(),
+            'total_lessons'     => Lesson::count(),
+            'pending_lessons'   => Lesson::where('status', 'pending')->count(),
+            'total_quizzes'     => Quiz::count(),
+            'pending_quizzes'   => Quiz::where('status', 'pending')->count(),
+            'total_attempts'    => QuizAttempt::where('status', 'completed')->count(),
+            'chatbot_queries'   => ChatbotLog::count(),
+            'active_users'      => User::where('is_active', true)->count(),
+            'active_students'   => User::where('role', 'student')->where('is_active', true)->count(),
+            'inactive_students' => User::where('role', 'student')->where('is_active', false)->count(),
+            'active_teachers'   => User::where('role', 'teacher')->where('is_active', true)->count(),
+            'inactive_teachers' => User::where('role', 'teacher')->where('is_active', false)->count(),
+            'total_courses'     => Course::count(),
+            'published_courses' => Course::where('status', 'published')->count(),
+            'pending_courses'   => Course::where('status', 'pending')->count(),
+            'total_enrollments' => Enrollment::count(),
+            'total_revenue'     => (float) \App\Models\Payment::sum('amount'),
+            'refunds_requested' => Enrollment::where('refund_status', 'requested')->count(),
+            'refunds_completed' => Enrollment::whereIn('refund_status', ['partial', 'full'])->count(),
+        ];
 
         $recentUsers   = User::latest()->take(5)->get();
         $recentLessons = Lesson::with('teacher')->latest()->take(5)->get();
@@ -71,9 +75,34 @@ class AdminController extends Controller
                 ->sum('amount');
         }
 
+        // Weekly Activity (Last 7 days)
+        $weeklyActivity = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dayLabel = $date->format('D');
+            $weeklyActivity[$dayLabel] = [
+                'logins'      => \Illuminate\Support\Facades\DB::table('sessions')->count(), // Simplified proxy for active sessions
+                'enrollments' => Enrollment::whereDate('enrolled_at', $date->toDateString())->count(),
+                'attempts'    => QuizAttempt::whereDate('created_at', $date->toDateString())->count(),
+                'completions' => ProgressReport::whereDate('updated_at', $date->toDateString())->where('is_completed', true)->count(),
+            ];
+        }
+
+        // Subject Performance (Platform-wide averages)
+        $subjects = ['Mathematics', 'Science', 'English', 'Hindi', 'Social Studies'];
+        $subjectStats = [];
+        foreach ($subjects as $subject) {
+            $avg = QuizAttempt::join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
+                ->where('quiz_attempts.status', 'completed')
+                ->where('quizzes.subject', $subject)
+                ->avg('quiz_attempts.percentage');
+            $subjectStats[$subject] = round($avg ?? 0, 1);
+        }
+
         return view('admin.dashboard', compact(
             'stats', 'recentUsers', 'recentLessons', 'recentCourses',
-            'monthlyRegistrations', 'monthlyRevenue', 'roleDistribution', 'period'
+            'monthlyRegistrations', 'monthlyRevenue', 'roleDistribution', 
+            'period', 'weeklyActivity', 'subjectStats'
         ));
     }
     public function auditLogs(Request $request)

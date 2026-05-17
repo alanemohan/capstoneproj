@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CourseStatus;
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,12 +12,12 @@ use InvalidArgumentException;
 
 class Course extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
 
     protected $fillable = [
         'teacher_id',
-        'title',
-        'description',
+        'title',    'title_hi',    'title_pa',
+        'description', 'description_hi', 'description_pa',
         'price',
         'thumbnail',
         'subject',
@@ -25,11 +26,13 @@ class Course extends Model
         'status',
         'approved_by',
         'approved_at',
+        'translation_pending',
     ];
 
     protected $casts = [
-        'price'       => 'decimal:2',
-        'approved_at' => 'datetime',
+        'price'               => 'decimal:2',
+        'approved_at'         => 'datetime',
+        'translation_pending' => 'boolean',
     ];
 
     protected static function booted(): void

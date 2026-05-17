@@ -245,8 +245,12 @@ class StudentCourseController extends Controller
 
     public function paymentCallback(Request $request)
     {
-        $ids = $request->enrollments;
-        $status = $request->status; // 'success' or 'fail'
+        $ids    = $request->input('enrollments', []);
+        $status = $request->input('status'); // 'success' or 'fail'
+
+        if (empty($ids)) {
+            return redirect()->route('student.cart')->with('error', 'No enrollments found to process.');
+        }
 
         $enrollments = \App\Models\Enrollment::whereIn('id', $ids)
             ->where('user_id', auth()->id())
@@ -256,6 +260,10 @@ class StudentCourseController extends Controller
             foreach ($enrollments as $enrollment) {
                 $this->enrollment->confirmPayment($enrollment, 'GATEWAY-' . strtoupper(\Illuminate\Support\Str::random(12)));
             }
+
+            // Invalidate Admin Dashboard Cache so revenue updates instantly
+            \Illuminate\Support\Facades\Cache::forget('admin.dashboard.stats');
+
             return redirect()->route('student.my-courses')->with('success', 'Payment successful! Welcome to your new courses.');
         } else {
             foreach ($enrollments as $enrollment) {
@@ -375,13 +383,37 @@ class StudentCourseController extends Controller
             $currentIdx = $allLessons->search(fn ($l) => $l->id === $lesson->id);
             $next       = $currentIdx < $allLessons->count() - 1 ? $allLessons[$currentIdx + 1] : null;
 
+            // Check if entire course is completed
+            $completedCount = ProgressReport::where('student_id', auth()->id())
+                ->whereIn('lesson_id', $allLessons->pluck('id'))
+                ->where('is_completed', true)
+                ->count();
+            
+            $isCourseComplete = $completedCount === $allLessons->count();
+
             return $this->successJson([
                 'completed' => true,
+                'is_course_complete' => $isCourseComplete,
                 'next_url'  => $next ? route('student.courses.lesson', [$course, $next]) : null,
             ], 'Lesson marked complete');
         } catch (\Throwable $e) {
             \App\Services\AuditLogger::log('error_complete_lesson', null, ['exception' => $e->getMessage()]);
             return $this->errorJson('Failed to complete lesson. Please try again later.', 500);
         }
+    }
+
+    public function resetProgress(Course $course)
+    {
+        if (!$this->enrollment->isEnrolled(auth()->user(), $course)) {
+            return back()->with('error', 'You must be enrolled to reset progress.');
+        }
+
+        $lessonIds = $course->lessons()->pluck('id');
+        ProgressReport::where('student_id', auth()->id())
+            ->whereIn('lesson_id', $lessonIds)
+            ->delete();
+
+        return redirect()->route('student.courses.show', $course)
+            ->with('success', 'Course progress has been reset. You can start again!');
     }
 }

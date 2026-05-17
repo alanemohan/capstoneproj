@@ -11,7 +11,8 @@ class MentorController extends Controller
 {
     public function index()
     {
-        $mentors = User::where('role', 'teacher')->where('is_mentor', true)->where('is_active', true)->get();
+        $student = auth()->user();
+        $mentors = $student->assignedMentor ? collect([$student->assignedMentor]) : collect();
         return view('student.mentors.index', compact('mentors'));
     }
 }

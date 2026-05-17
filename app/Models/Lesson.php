@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,12 +10,12 @@ use Illuminate\Support\Facades\Storage;
 
 class Lesson extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
 
     protected $fillable = [
         'teacher_id',
-        'title',
-        'description',
+        'title', 'title_hi', 'title_pa',
+        'description', 'description_hi', 'description_pa',
         'subject',
         'class_level',
         'language',
@@ -29,12 +30,14 @@ class Lesson extends Model
         'approved_by',
         'approved_at',
         'course_id',
+        'translation_pending',
     ];
 
     protected $casts = [
-        'approved_at' => 'datetime',
-        'view_count' => 'integer',
-        'download_count' => 'integer',
+        'approved_at'         => 'datetime',
+        'view_count'          => 'integer',
+        'download_count'      => 'integer',
+        'translation_pending' => 'boolean',
     ];
 
     protected static function booted(): void

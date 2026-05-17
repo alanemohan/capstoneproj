@@ -136,6 +136,7 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labels   = @json($chartLabels);
     const scores   = @json($chartScores);

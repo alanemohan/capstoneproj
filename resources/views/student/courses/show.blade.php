@@ -269,21 +269,48 @@
 
                     {{-- CTA --}}
                     @if($isEnrolled)
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-center">
-                            <p class="text-emerald-700 font-semibold text-sm">✅ You're enrolled!</p>
-                        </div>
-                        @if($course->lessons->isNotEmpty())
-                            @php
-                                $target = $resumeLesson ?? $course->lessons->first();
-                            @endphp
-                            <a href="{{ route('student.courses.lesson', [$course, $target]) }}"
-                               class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition shadow-sm shadow-indigo-200">
-                                {{ $resumeLesson ? '▶ Resume Learning' : 'Start Learning →' }}
-                            </a>
-                            @if($resumeLesson && $resumeLesson->id !== $course->lessons->first()->id)
-                                <p class="text-center text-xs text-gray-400 -mt-2">
-                                    Picking up at <em>{{ Str::limit($resumeLesson->title, 30) }}</em>
-                                </p>
+                        @php
+                            $completedCount = \App\Models\ProgressReport::where('student_id', auth()->id())
+                                ->whereIn('lesson_id', $course->lessons->pluck('id'))
+                                ->where('is_completed', true)
+                                ->count();
+                            $isCourseComplete = ($course->lessons->count() > 0 && $completedCount === $course->lessons->count());
+                        @endphp
+
+                        @if($isCourseComplete)
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center space-y-3">
+                                <p class="text-emerald-700 font-bold text-lg">🎉 Course Completed!</p>
+                                <p class="text-xs text-emerald-600">You have successfully finished all lessons in this course.</p>
+                                
+                                <div class="flex flex-col gap-2 pt-2">
+                                    <form method="POST" action="{{ route('student.courses.reset', $course) }}" onsubmit="return confirm('This will clear all your progress for this course. Are you sure?')">
+                                        @csrf
+                                        <button type="submit" class="w-full bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50 py-2.5 rounded-xl text-sm font-bold transition">
+                                            🔄 Restart Course Again
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('student.courses.lesson', [$course, $course->lessons->first()]) }}" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition">
+                                        📖 Review Lessons
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-center">
+                                <p class="text-emerald-700 font-semibold text-sm">✅ You're enrolled!</p>
+                            </div>
+                            @if($course->lessons->isNotEmpty())
+                                @php
+                                    $target = $resumeLesson ?? $course->lessons->first();
+                                @endphp
+                                <a href="{{ route('student.courses.lesson', [$course, $target]) }}"
+                                   class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition shadow-sm shadow-indigo-200">
+                                    {{ $resumeLesson ? '▶ Resume Learning' : 'Start Learning →' }}
+                                </a>
+                                @if($resumeLesson && $resumeLesson->id !== $course->lessons->first()->id)
+                                    <p class="text-center text-xs text-gray-400 -mt-2">
+                                        Picking up at <em>{{ Str::limit($resumeLesson->title, 30) }}</em>
+                                    </p>
+                                @endif
                             @endif
                         @endif
                     @elseif($course->isFree())

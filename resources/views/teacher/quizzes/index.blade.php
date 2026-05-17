@@ -56,7 +56,7 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 mt-4">
-                            <form method="POST" action="{{ route('teacher.quizzes.toggle', $quiz->id) }}" class="w-full">
+                            <form method="POST" action="{{ route('teacher.quizzes.toggle', $quiz->id) }}" class="w-full" data-no-loading>
                                 @csrf @method('PATCH')
                                 <button type="submit"
                                         class="w-full text-xs py-2 rounded-lg font-medium transition

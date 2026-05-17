@@ -8,8 +8,10 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\LessonContent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use Throwable;
 
 class CourseController extends Controller
 {
@@ -37,27 +39,44 @@ class CourseController extends Controller
             'subject'     => ['required', 'string'],
             'class_level' => ['required', 'string'],
             'language'    => ['required', 'string', 'in:en,hi,pa'],
-            'thumbnail'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'thumbnail'   => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
         ]);
 
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('course-thumbnails', 'public');
+            try {
+                $file = $request->file('thumbnail');
+                if (!$file->isValid()) {
+                    return back()->withInput()->with('error', 'Thumbnail upload failed. Please try a smaller file (max 5MB).');
+                }
+                $thumbnailPath = $file->store('course-thumbnails', 'public');
+            } catch (Throwable $e) {
+                Log::error('Course thumbnail upload failed', [
+                    'teacher_id' => auth()->id(),
+                    'error'      => $e->getMessage(),
+                ]);
+                return back()->withInput()->with('error', 'Thumbnail upload failed: ' . $e->getMessage());
+            }
         }
 
-        Course::create([
-            'teacher_id'  => auth()->id(),
-            'title'       => $validated['title'],
-            'description' => $validated['description'],
-            'price'       => $validated['price'],
-            'subject'     => $validated['subject'],
-            'class_level' => $validated['class_level'],
-            'language'    => $validated['language'],
-            'thumbnail'   => $thumbnailPath,
-            'status'      => 'draft',
-        ]);
+        try {
+            Course::create([
+                'teacher_id'  => auth()->id(),
+                'title'       => $validated['title'],
+                'description' => $validated['description'],
+                'price'       => $validated['price'],
+                'subject'     => $validated['subject'],
+                'class_level' => $validated['class_level'],
+                'language'    => $validated['language'],
+                'thumbnail'   => $thumbnailPath,
+                'status'      => 'draft',
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Course creation DB error', ['teacher_id' => auth()->id(), 'error' => $e->getMessage()]);
+            return back()->withInput()->with('error', 'Failed to save course. Please try again.');
+        }
 
-        return redirect()->route('teacher.courses')->with('success', 'Course created! Add lessons and submit for review.');
+        return redirect()->route('teacher.courses')->with('success', '🎉 Course created! Add lessons and submit for review.');
     }
 
     public function show(Course $course)
@@ -146,32 +165,53 @@ class CourseController extends Controller
         abort_if($course->teacher_id !== auth()->id(), 403);
 
         $request->validate([
-            'title'                        => ['required', 'string', 'max:200'],
-            'description'                  => ['required', 'string'],
-            'contents'                     => ['required', 'array', 'min:1'],
-            'contents.*.type'              => ['required', 'in:video,pdf,image,text'],
-            'contents.*.title'             => ['nullable', 'string', 'max:200'],
-            'contents.*.content_text'      => ['nullable', 'string'],
-            'contents.*.file'              => ['nullable', 'file', 'max:51200', 'mimes:pdf,mp4,webm,jpg,jpeg,png'],
+            'title'                   => ['required', 'string', 'max:200'],
+            'description'             => ['required', 'string'],
+            'contents'                => ['required', 'array', 'min:1'],
+            'contents.*.type'         => ['required', 'in:video,pdf,image,text'],
+            'contents.*.title'        => ['nullable', 'string', 'max:200'],
+            'contents.*.content_text' => ['nullable', 'string'],
+            'contents.*.file'         => ['nullable', 'file', 'max:102400', 'mimes:pdf,mp4,webm,mov,avi,jpg,jpeg,png,gif,webp'],
         ]);
 
-        $lesson = Lesson::create([
-            'teacher_id'  => auth()->id(),
-            'course_id'   => $course->id,
-            'title'       => $request->title,
-            'description' => $request->description,
-            'subject'     => $course->subject ?? 'General',
-            'class_level' => $course->class_level ?? 'All',
-            'language'    => $course->language ?? 'en',
-            'file_type'   => $request->contents[0]['type'] ?? 'text',
-            'status'      => 'pending',
-            'order'       => $course->lessons()->max('order') + 1,
-        ]);
+        try {
+            $lesson = Lesson::create([
+                'teacher_id'  => auth()->id(),
+                'course_id'   => $course->id,
+                'title'       => $request->title,
+                'description' => $request->description,
+                'subject'     => $course->subject ?? 'General',
+                'class_level' => $course->class_level ?? 'All',
+                'language'    => $course->language ?? 'en',
+                'file_type'   => $request->contents[0]['type'] ?? 'text',
+                'status'      => 'pending',
+                'order'       => ($course->lessons()->max('order') ?? 0) + 1,
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Lesson creation failed', ['course_id' => $course->id, 'teacher_id' => auth()->id(), 'error' => $e->getMessage()]);
+            return back()->withInput()->with('error', 'Failed to create lesson: ' . $e->getMessage());
+        }
 
+        $uploadErrors = [];
         foreach ($request->contents as $i => $block) {
             $filePath = null;
             if (isset($block['file']) && $request->hasFile("contents.{$i}.file")) {
-                $filePath = $request->file("contents.{$i}.file")->store('lesson-contents', 'public');
+                $uploadFile = $request->file("contents.{$i}.file");
+                if (!$uploadFile->isValid()) {
+                    $uploadErrors[] = "Block " . ($i + 1) . ": Upload invalid — file may be too large. Max size is 100MB.";
+                    continue;
+                }
+                try {
+                    $filePath = $uploadFile->store('lesson-contents', 'public');
+                } catch (Throwable $e) {
+                    Log::error('Lesson content file upload failed', [
+                        'lesson_id' => $lesson->id,
+                        'block'     => $i,
+                        'error'     => $e->getMessage(),
+                    ]);
+                    $uploadErrors[] = "Block " . ($i + 1) . ": " . $e->getMessage();
+                    continue;
+                }
             }
 
             LessonContent::create([
@@ -184,7 +224,13 @@ class CourseController extends Controller
             ]);
         }
 
-        return redirect()->route('teacher.courses.show', $course)->with('success', 'Lesson added to course!');
+        if (!empty($uploadErrors)) {
+            $errorList = implode('; ', $uploadErrors);
+            return redirect()->route('teacher.courses.show', $course)
+                ->with('warning', "Lesson saved, but some files had upload errors: {$errorList}");
+        }
+
+        return redirect()->route('teacher.courses.show', $course)->with('success', '✅ Lesson added to course successfully!');
     }
 
     public function destroyLesson(Course $course, Lesson $lesson)
