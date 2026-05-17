@@ -467,19 +467,19 @@
             color: #0f172a !important;
         }
 
-        html:not(.dark) .teacher-portal nav,
-        html:not(.dark) .admin-portal nav {
+        html:not(.dark) .teacher-portal > nav,
+        html:not(.dark) .admin-portal > nav {
             background-color: #ffffff !important;
             border-color: #e2e8f0 !important;
         }
 
-        html:not(.dark) .teacher-portal nav *,
-        html:not(.dark) .admin-portal nav * {
+        html:not(.dark) .teacher-portal > nav *,
+        html:not(.dark) .admin-portal > nav * {
             color: #1e293b !important;
         }
 
-        html:not(.dark) .teacher-portal nav svg,
-        html:not(.dark) .admin-portal nav svg {
+        html:not(.dark) .teacher-portal > nav svg,
+        html:not(.dark) .admin-portal > nav svg {
             color: #475569 !important;
         }
 
