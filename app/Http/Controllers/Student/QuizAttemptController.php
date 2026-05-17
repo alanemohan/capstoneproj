@@ -21,8 +21,15 @@ class QuizAttemptController extends Controller
         }
 
         $quizzes = $query->latest()->paginate(12);
-        $subjects = Quiz::active()->where('class_level', $student->class_level)
-            ->distinct()->pluck('subject');
+        $subjects = collect([
+            'Mathematics', 'Science', 'English', 'Social Science', 'Hindi', 'Punjabi', 'Computer Science'
+        ])->merge(
+            Quiz::active()->distinct()->pluck('subject')
+        )->merge(
+            \App\Models\Course::distinct()->pluck('subject')
+        )->merge(
+            \App\Models\Lesson::distinct()->pluck('subject')
+        )->filter(fn($val) => !empty(trim($val)))->unique()->sort()->values();
 
         return view('student.quizzes.index', compact('quizzes', 'subjects'));
     }

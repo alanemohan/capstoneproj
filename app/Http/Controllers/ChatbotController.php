@@ -137,4 +137,49 @@ class ChatbotController extends Controller
         $log->update(['was_helpful' => $request->boolean('helpful')]);
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Clear active conversation history or all conversation histories for the logged-in user.
+     */
+    public function clearHistory(Request $request)
+    {
+        $conversationId = $request->input('conversation_id');
+        $deleteAll = $request->boolean('all', false);
+
+        if ($deleteAll) {
+            ChatbotLog::where('user_id', auth()->id())->delete();
+            $newConversationId = (string) \Illuminate\Support\Str::uuid();
+            session(['chatbot_conversation_id' => $newConversationId]);
+            return response()->json([
+                'success' => true,
+                'conversation_id' => $newConversationId,
+                'message' => 'All chat history cleared successfully.'
+            ]);
+        }
+
+        if ($conversationId) {
+            ChatbotLog::where('user_id', auth()->id())
+                ->where('conversation_id', $conversationId)
+                ->delete();
+            
+            // If the cleared conversation is the active session one, generate a new one
+            if ($conversationId === session('chatbot_conversation_id')) {
+                $newConversationId = (string) \Illuminate\Support\Str::uuid();
+                session(['chatbot_conversation_id' => $newConversationId]);
+            } else {
+                $newConversationId = session('chatbot_conversation_id');
+            }
+
+            return response()->json([
+                'success' => true,
+                'conversation_id' => $newConversationId,
+                'message' => 'Conversation cleared successfully.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No conversation ID provided.'
+        ], 400);
+    }
 }

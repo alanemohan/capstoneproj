@@ -261,8 +261,12 @@ class StudentCourseController extends Controller
                 $this->enrollment->confirmPayment($enrollment, 'GATEWAY-' . strtoupper(\Illuminate\Support\Str::random(12)));
             }
 
-            // Invalidate Admin Dashboard Cache so revenue updates instantly
-            \Illuminate\Support\Facades\Cache::forget('admin.dashboard.stats');
+            // Invalidate Admin Dashboard Cache so revenue, KPI metrics and activity charts update instantly
+            \Illuminate\Support\Facades\Cache::forget('admin_stats');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_3');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_6');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_12');
+            \Illuminate\Support\Facades\Cache::forget('admin_weekly_activity');
 
             return redirect()->route('student.my-courses')->with('success', 'Payment successful! Welcome to your new courses.');
         } else {
@@ -378,6 +382,11 @@ class StudentCourseController extends Controller
             if (!$report->is_completed) {
                 $report->markCompleted();
             }
+
+            // Invalidate student caches so the dashboard updates immediately
+            \Illuminate\Support\Facades\Cache::forget("student_stats_" . auth()->id());
+            \Illuminate\Support\Facades\Cache::forget("student_subject_scores_" . auth()->id());
+            \Illuminate\Support\Facades\Cache::forget("student_weekly_progress_" . auth()->id());
 
             $allLessons = $course->lessons()->orderBy('order')->get();
             $currentIdx = $allLessons->search(fn ($l) => $l->id === $lesson->id);

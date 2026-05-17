@@ -14,44 +14,47 @@ class AnalyticsController extends Controller
 {
     public function index()
     {
-        $teacher   = auth()->user();
-        $myLessons = Lesson::where('teacher_id', $teacher->id)->pluck('id');
-        $myQuizzes = Quiz::where('teacher_id', $teacher->id)->pluck('id');
+        $teacher = auth()->user();
+        $teacherId = $teacher->id;
 
-        $totalViews     = ProgressReport::whereIn('lesson_id', $myLessons)->sum('views');
-        $totalDownloads = Lesson::where('teacher_id', $teacher->id)->sum('download_count');
-        $totalAttempts  = QuizAttempt::whereIn('quiz_id', $myQuizzes)->where('status', 'completed')->count();
-        $avgQuizScore   = QuizAttempt::whereIn('quiz_id', $myQuizzes)->where('status', 'completed')->avg('percentage') ?? 0;
+        $data = \Illuminate\Support\Facades\Cache::remember("teacher_analytics_{$teacherId}", 60, function () use ($teacherId) {
+            $myLessons = Lesson::where('teacher_id', $teacherId)->pluck('id');
+            $myQuizzes = Quiz::where('teacher_id', $teacherId)->pluck('id');
 
-        $quizPerformance = Quiz::where('teacher_id', $teacher->id)
-            ->withCount(['attempts as completed_attempts' => fn ($q) => $q->where('status', 'completed')])
-            ->with(['attempts' => fn ($q) => $q->where('status', 'completed')])
-            ->get()
-            ->map(fn ($quiz) => [
-                'title'     => $quiz->title,
-                'attempts'  => $quiz->completed_attempts,
-                'avg_score' => round($quiz->attempts->avg('percentage') ?? 0, 1),
-                'pass_rate' => $quiz->completed_attempts > 0
-                    ? round(($quiz->attempts->where('passed', true)->count() / $quiz->completed_attempts) * 100, 1)
-                    : 0,
-            ]);
+            $totalViews     = ProgressReport::whereIn('lesson_id', $myLessons)->sum('views');
+            $totalDownloads = Lesson::where('teacher_id', $teacherId)->sum('download_count');
+            $totalAttempts  = QuizAttempt::whereIn('quiz_id', $myQuizzes)->where('status', 'completed')->count();
+            $avgQuizScore   = QuizAttempt::whereIn('quiz_id', $myQuizzes)->where('status', 'completed')->avg('percentage') ?? 0;
 
-        $lessonEngagement = Lesson::where('teacher_id', $teacher->id)
-            ->withCount(['progressReports as student_views'])
-            ->orderBy('view_count', 'desc')
-            ->take(10)->get();
+            $quizPerformance = Quiz::where('teacher_id', $teacherId)
+                ->withCount(['attempts as completed_attempts' => fn ($q) => $q->where('status', 'completed')])
+                ->with(['attempts' => fn ($q) => $q->where('status', 'completed')])
+                ->get()
+                ->map(fn ($quiz) => [
+                    'title'     => $quiz->title,
+                    'attempts'  => $quiz->completed_attempts,
+                    'avg_score' => round($quiz->attempts->avg('percentage') ?? 0, 1),
+                    'pass_rate' => $quiz->completed_attempts > 0
+                        ? round(($quiz->attempts->where('passed', true)->count() / $quiz->completed_attempts) * 100, 1)
+                        : 0,
+                ]);
 
-        $weeklyAttempts = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            $weeklyAttempts[$date->format('D')] = QuizAttempt::whereIn('quiz_id', $myQuizzes)
-                ->whereDate('created_at', $date->toDateString())->count();
-        }
+            $lessonEngagement = Lesson::where('teacher_id', $teacherId)
+                ->withCount(['progressReports as student_views'])
+                ->orderBy('view_count', 'desc')
+                ->take(10)->get();
 
-        return view('teacher.analytics.index', compact(
-            'totalViews', 'totalDownloads', 'totalAttempts', 'avgQuizScore',
-            'quizPerformance', 'lessonEngagement', 'weeklyAttempts'
-        ));
+            $weeklyAttempts = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $weeklyAttempts[$date->format('D')] = QuizAttempt::whereIn('quiz_id', $myQuizzes)
+                    ->whereDate('created_at', $date->toDateString())->count();
+            }
+
+            return compact('totalViews', 'totalDownloads', 'totalAttempts', 'avgQuizScore', 'quizPerformance', 'lessonEngagement', 'weeklyAttempts');
+        });
+
+        return view('teacher.analytics.index', $data);
     }
 
     public function studentProgress()

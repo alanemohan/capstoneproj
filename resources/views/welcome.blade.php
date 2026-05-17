@@ -51,7 +51,7 @@
                 $features = [
                     ['icon'=>'📚','title'=>'Rich Lesson Library','desc'=>'PDF and video lessons for all subjects — Maths, Science, English, Hindi & Social Studies for Classes 6-10'],
                     ['icon'=>'✏️','title'=>'Interactive Quizzes','desc'=>'Test your knowledge with timed multiple-choice quizzes. Get instant results and detailed explanations'],
-                    ['icon'=>'🤖','title'=>'AI Study Assistant','desc'=>'Get instant answers to your questions using our smart chatbot. Available 24/7, covers entire syllabus'],
+                    ['icon'=>'🤖','title'=>'AI Chatbot','desc'=>'Get instant answers to your questions using our smart chatbot. Available 24/7, covers entire syllabus'],
                     ['icon'=>'📶','title'=>'Works Offline','desc'=>'Download lessons to study without internet. All content works offline using PWA technology'],
                     ['icon'=>'📊','title'=>'Progress Tracking','desc'=>'Visual charts showing your performance across subjects. Track improvement over time'],
                     ['icon'=>'👨‍🏫','title'=>'Expert Teachers','desc'=>'Content created and verified by qualified teachers from local schools in Nabha district'],

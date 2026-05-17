@@ -32,8 +32,8 @@ class ChatbotService
 
         // Online providers: tried in order, first success wins
         $this->onlineProviders = [
-            new GroqProvider(),
             new GeminiProvider(),
+            new GroqProvider(),
             new OllamaProvider(),
             new WikipediaProvider(),
             new DuckDuckGoProvider(),
@@ -160,23 +160,29 @@ class ChatbotService
         // Greetings
         $greetings = ['hello', 'hi', 'hey', 'namaste', 'namaskar', 'good morning', 'good afternoon', 'good evening', 'sat sri akal'];
         foreach ($greetings as $g) {
-            if (str_contains($lower, $g)) {
-                $user = Auth::user();
-                $name = $user ? " {$user->name}" : '';
-                return [
-                    'response'   => "Namaste{$name}! 🙏 I'm your **AI Study Assistant**, powered by advanced AI.\n\n**I can help you with:**\n• 🌍 **Any question in the world** — science, math, history, coding, current affairs\n• 📚 Course uploads & management\n• 📝 Assignments & quizzes\n• 🔑 Login & password issues\n• 📊 Enrollment & progress\n\nJust ask me anything!",
-                    'intent'     => 'greeting',
-                    'subject'    => null,
-                    'confidence' => 1.0,
-                    'source'     => 'system',
-                ];
+            if (preg_match('/\b' . preg_quote($g, '/') . '\b/i', $lower)) {
+                $wordCount = str_word_count($lower);
+                $hasActionKeyword = preg_match('/\b(write|explain|code|program|class|course|solve|math|how|what|why|who|create|add)\b/i', $lower);
+                
+                // Only return local greeting if it's a short, simple greeting (e.g. <= 3 words)
+                if ($wordCount <= 3 && !$hasActionKeyword) {
+                    $user = Auth::user();
+                    $name = $user ? " {$user->name}" : '';
+                    return [
+                        'response'   => "Namaste{$name}! 🙏 I'm your **AI Chatbot**, powered by advanced AI.\n\n**I can help you with:**\n• 🌍 **Any question in the world** — science, math, history, coding, current affairs\n• 📚 Course uploads & management\n• 📝 Assignments & quizzes\n• 🔑 Login & password issues\n• 📊 Enrollment & progress\n\nJust ask me anything!",
+                        'intent'     => 'greeting',
+                        'subject'    => null,
+                        'confidence' => 1.0,
+                        'source'     => 'system',
+                    ];
+                }
             }
         }
 
         // Farewells
         $farewells = ['bye', 'goodbye', 'see you', 'alvida', 'thank you', 'thanks', 'dhanyawad'];
         foreach ($farewells as $f) {
-            if (str_contains($lower, $f)) {
+            if (preg_match('/\b' . preg_quote($f, '/') . '\b/i', $lower)) {
                 return [
                     'response'   => "Goodbye! Keep learning! 📚 Come back anytime. Jai Hind! 🇮🇳",
                     'intent'     => 'farewell',
@@ -190,14 +196,20 @@ class ChatbotService
         // Help
         $helpTriggers = ['help', 'what can you do', 'what do you know', 'topics', 'what can you answer'];
         foreach ($helpTriggers as $t) {
-            if (str_contains($lower, $t)) {
-                return [
-                    'response'   => "I'm an **AI-powered assistant** that can help with:\n\n**🌍 General Knowledge:**\n• Any question — science, history, geography, current affairs\n• Programming & computer science\n• Mathematics & problem solving\n\n**📚 LMS Features:**\n• Upload course / add lesson\n• My enrolled courses\n• Assignment status\n• Password reset / login help\n• Teacher approval status\n• Contact admin\n\n**🤖 AI Modes:**\n• 🟢 Online — Uses Groq AI / Gemini for intelligent answers\n• 🟡 Local — Uses Ollama (if installed) for offline AI\n• 📚 Knowledge Base — Built-in educational content\n\n*Just type your question naturally!*",
-                    'intent'     => 'help',
-                    'subject'    => null,
-                    'confidence' => 1.0,
-                    'source'     => 'system',
-                ];
+            if (preg_match('/\b' . preg_quote($t, '/') . '\b/i', $lower)) {
+                $wordCount = str_word_count($lower);
+                $hasActionKeyword = preg_match('/\b(write|explain|code|program|class|course|solve|math|how|what|why|who|create|add)\b/i', $lower);
+                
+                // Only return local help details if the question is a simple help query (e.g. <= 3 words)
+                if ($wordCount <= 3 && !$hasActionKeyword) {
+                    return [
+                        'response'   => "I'm an **AI-powered assistant** that can help with:\n\n**🌍 General Knowledge:**\n• Any question — science, history, geography, current affairs\n• Programming & computer science\n• Mathematics & problem solving\n\n**📚 LMS Features:**\n• Upload course / add lesson\n• My enrolled courses\n• Assignment status\n• Password reset / login help\n• Teacher approval status\n• Contact admin\n\n**🤖 AI Modes:**\n• 🟢 Online — Uses advanced online AI for intelligent answers\n• 🟡 Local — Uses local model (if installed) for offline AI\n• 📚 Knowledge Base — Built-in educational content\n\n*Just type your question naturally!*",
+                        'intent'     => 'help',
+                        'subject'    => null,
+                        'confidence' => 1.0,
+                        'source'     => 'system',
+                    ];
+                }
             }
         }
 
@@ -372,13 +384,69 @@ PROMPT;
                 $prompt .= "\n- Class Level: {$user->class_level}";
             }
             if ($user->isStudent()) {
-                $enrolledCount = Enrollment::where('user_id', $user->id)->count();
-                $prompt .= "\n- Enrolled Courses: {$enrolledCount}";
+                // Enrolled courses details
+                $enrollments = Enrollment::where('user_id', $user->id)->with('course')->get();
+                $enrolledList = $enrollments->map(fn($e) => "  • " . ($e->course?->title ?? 'Untitled Course'))->join("\n");
+                
+                // Pending assignments details
+                $pendingAssignments = Assignment::whereDoesntHave('submissions', fn ($q) => $q->where('student_id', $user->id))
+                    ->where('due_date', '>=', now())
+                    ->get();
+                $assignmentsList = $pendingAssignments->map(fn($a) => "  • {$a->title} (Due: " . ($a->due_date ? $a->due_date->format('Y-m-d') : 'No due date') . ")")->join("\n");
+
+                // Available scholarships
+                $scholarships = \App\Models\Scholarship::take(3)->get();
+                $scholarshipList = $scholarships->map(fn($s) => "  • {$s->title}: Amount {$s->amount} (Deadline: {$s->deadline})")->join("\n");
+
+                // Available government schemes
+                $schemes = \App\Models\GovernmentScheme::take(3)->get();
+                $schemeList = $schemes->map(fn($gs) => "  • {$gs->title}: {$gs->description}")->join("\n");
+
+                // Notifications
+                $notifications = $user->portalNotifications()->take(3)->get();
+                $notifList = $notifications->map(fn($n) => "  • " . ($n->data['title'] ?? 'LMS Update') . ": " . ($n->data['message'] ?? ''))->join("\n");
+
+                $prompt .= "\n\n### Student Dashboard Context:";
+                $prompt .= "\n- Current Streak: {$user->streak_count} day(s)";
+                $prompt .= "\n- Completed Lessons Count: " . ($user->lessons_completed ?? 0);
+                $prompt .= "\n- Average Quiz Score: " . ($user->total_quiz_score ?? 0) . "%";
+                $prompt .= "\n- Enrolled Courses:\n" . ($enrolledList ?: "  None enrolled yet.");
+                $prompt .= "\n- Pending Assignments:\n" . ($assignmentsList ?: "  None pending currently.");
+                $prompt .= "\n- Active Notifications:\n" . ($notifList ?: "  No new notifications.");
+                $prompt .= "\n- Educational Scholarships Available:\n" . ($scholarshipList ?: "  None listed.");
+                $prompt .= "\n- Government Schemes Available:\n" . ($schemeList ?: "  None listed.");
             }
             if ($user->isTeacher()) {
-                $courseCount = Course::where('teacher_id', $user->id)->count();
-                $prompt .= "\n- Courses Created: {$courseCount}";
-                $prompt .= "\n- Status: " . ($user->status ?? 'approved');
+                $courses = Course::where('teacher_id', $user->id)->get();
+                $courseList = $courses->map(fn($c) => "  • {$c->title} (Status: {$c->status}, Subject: {$c->subject})")->join("\n");
+
+                $studentsCount = Enrollment::whereIn('course_id', $courses->pluck('id'))->distinct('user_id')->count();
+
+                $assignments = Assignment::where('teacher_id', $user->id)->get();
+                $assignmentList = $assignments->map(fn($a) => "  • {$a->title} (Due: " . ($a->due_date ? $a->due_date->format('Y-m-d') : 'No due date') . ")")->join("\n");
+
+                $prompt .= "\n\n### Teacher Dashboard Context:";
+                $prompt .= "\n- Specialization: {$user->subject_specialization}";
+                $prompt .= "\n- Qualification: {$user->qualification}";
+                $prompt .= "\n- Total Enrolled Students across your courses: {$studentsCount}";
+                $prompt .= "\n- Courses Created:\n" . ($courseList ?: "  No courses created yet.");
+                $prompt .= "\n- Assignments Assigned:\n" . ($assignmentList ?: "  No assignments assigned.");
+            }
+            if ($user->isAdmin()) {
+                $totalStudents = User::where('role', 'student')->count();
+                $totalTeachers = User::where('role', 'teacher')->count();
+                $totalCourses = Course::count();
+                $pendingCourses = Course::where('status', 'pending')->count();
+                $pendingTeachers = User::where('role', 'teacher')->where('status', 'pending')->count();
+                $pendingLessons = Lesson::where('status', 'pending')->count();
+
+                $prompt .= "\n\n### Admin Dashboard Context (Platform Analytics):";
+                $prompt .= "\n- Total Platform Students: {$totalStudents}";
+                $prompt .= "\n- Total Platform Teachers: {$totalTeachers}";
+                $prompt .= "\n- Total Courses Uploaded: {$totalCourses}";
+                $prompt .= "\n- Pending Course Approvals: {$pendingCourses}";
+                $prompt .= "\n- Pending Teacher Approval Requests: {$pendingTeachers}";
+                $prompt .= "\n- Pending Lesson Approvals: {$pendingLessons}";
             }
         }
 

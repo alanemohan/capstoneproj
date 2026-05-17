@@ -34,5 +34,32 @@ class AppServiceProvider extends ServiceProvider
         Quiz::observe(ContentTranslationObserver::class);
         Question::observe(ContentTranslationObserver::class);
         \App\Models\LiveClass::observe(ContentTranslationObserver::class);
+
+        // Real-Time Dynamic Synchronization: automatically clear dashboard caches when records are added or updated
+        $clearAdminCache = function () {
+            \Illuminate\Support\Facades\Cache::forget('admin_stats');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_3');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_6');
+            \Illuminate\Support\Facades\Cache::forget('admin_trends_12');
+            \Illuminate\Support\Facades\Cache::forget('admin_weekly_activity');
+            \Illuminate\Support\Facades\Cache::forget('admin_subject_stats');
+        };
+
+        $syncedModels = [
+            \App\Models\User::class,
+            \App\Models\Course::class,
+            \App\Models\Lesson::class,
+            \App\Models\Quiz::class,
+            \App\Models\QuizAttempt::class,
+            \App\Models\Payment::class,
+            \App\Models\Complaint::class,
+            \App\Models\Scholarship::class,
+            \App\Models\GovernmentScheme::class,
+        ];
+
+        foreach ($syncedModels as $model) {
+            $model::saved($clearAdminCache);
+            $model::deleted($clearAdminCache);
+        }
     }
 }

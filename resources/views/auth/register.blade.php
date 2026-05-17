@@ -3,192 +3,331 @@
 @section('title', __('messages.register') . ' - ' . __('messages.platform_name'))
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg">
-        <div class="flex justify-end mb-3 gap-2 text-xs text-primary-100">
-            <a href="{{ route('lang.switch', 'en') }}" data-lang="en" class="hover:text-white">English</a>
-            <span>|</span>
-            <a href="{{ route('lang.switch', 'hi') }}" data-lang="hi" class="hover:text-white">हिंदी</a>
-            <span>|</span>
-            <a href="{{ route('lang.switch', 'pa') }}" data-lang="pa" class="hover:text-white">ਪੰਜਾਬੀ</a>
+<!-- Force Dark Mode for Register Page to preserve the gorgeous dark SaaS aesthetic -->
+<script>
+    document.documentElement.classList.add('dark');
+</script>
+
+<div class="min-h-screen bg-[#090616] text-white font-sans flex flex-col justify-between p-6 md:p-8 relative overflow-hidden select-none">
+    
+    <!-- Decorative Ambient Glows -->
+    <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-500/10 blur-[130px] pointer-events-none"></div>
+
+    <!-- Header Navigation -->
+    <header class="w-full flex items-center justify-between z-20 relative max-w-7xl mx-auto">
+        <a href="/" class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#4f46e5] flex items-center justify-center text-white text-base font-bold shadow-lg shadow-purple-500/20">
+                N
+            </div>
+            <span class="font-bold text-lg text-white tracking-tight" style="font-family: var(--font-display);">Nabha Digital Learning</span>
+        </a>
+        
+        <!-- Language Switcher -->
+        <div class="flex items-center gap-3 text-xs font-semibold">
+            <a href="{{ route('lang.switch', 'en') }}" data-lang="en" class="text-slate-400 hover:text-white transition">English</a>
+            <span class="text-slate-700">|</span>
+            <a href="{{ route('lang.switch', 'hi') }}" data-lang="hi" class="text-slate-400 hover:text-white transition">हिंदी</a>
+            <span class="text-slate-700">|</span>
+            <a href="{{ route('lang.switch', 'pa') }}" data-lang="pa" class="text-slate-400 hover:text-white transition">ਪੰਜਾਬੀ</a>
         </div>
-        <div class="text-center mb-8 text-white">
-            <a href="/" class="inline-flex items-center gap-2 mb-4">
-                <span class="text-4xl">🎓</span>
-                <span class="font-bold text-2xl">{{ __('messages.platform_name') }}</span>
-            </a>
-            <p class="text-primary-300">{{ __('messages.register_intro') }}</p>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 my-auto py-8 z-10 relative items-center">
+        
+        <!-- Left Column: Emotional branding and features -->
+        <div class="lg:col-span-7 flex flex-col justify-center space-y-8 pr-0 lg:pr-6 text-left">
+            <div class="space-y-4">
+                <h1 class="text-4xl md:text-5xl lg:text-[54px] leading-[1.15] font-extrabold text-white tracking-tight" style="font-family: var(--font-display);">
+                    Empowering Rural <br>
+                    Students of <span class="text-[#8b5cf6] bg-clip-text">Nabha</span>
+                </h1>
+                <div class="w-16 h-1.5 bg-gradient-to-r from-[#8b5cf6] to-[#4f46e5] rounded-full"></div>
+            </div>
+
+            <p class="text-slate-350 text-sm md:text-base max-w-xl font-medium leading-relaxed">
+                Quality education for every student, everywhere. <br>
+                Learn, grow and achieve your dreams with Nabha Digital Learning Platform.
+            </p>
+
+            <!-- Translucent Feature Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl">
+                <!-- Smart Learning -->
+                <div class="bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06] rounded-2xl p-4 flex flex-col space-y-3 transition duration-300">
+                    <div class="w-9 h-9 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Smart Learning</h3>
+                        <p class="text-[10px] text-slate-400 mt-1 font-semibold leading-relaxed">Interactive courses and digital content.</p>
+                    </div>
+                </div>
+
+                <!-- Track Progress -->
+                <div class="bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06] rounded-2xl p-4 flex flex-col space-y-3 transition duration-300">
+                    <div class="w-9 h-9 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Track Progress</h3>
+                        <p class="text-[10px] text-slate-400 mt-1 font-semibold leading-relaxed">Monitor your learning journey.</p>
+                    </div>
+                </div>
+
+                <!-- Achieve Goals -->
+                <div class="bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06] rounded-2xl p-4 flex flex-col space-y-3 transition duration-300">
+                    <div class="w-9 h-9 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Achieve Goals</h3>
+                        <p class="text-[10px] text-slate-400 mt-1 font-semibold leading-relaxed">Build skills and shape your future.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quote Container -->
+            <div class="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 max-w-xl shadow-lg relative overflow-hidden backdrop-blur-md">
+                <p class="text-xs font-medium text-slate-300 italic leading-relaxed">
+                    “ Education is the most powerful weapon which you can use to change the world. ”
+                </p>
+                <p class="text-[11px] font-bold text-[#8b5cf6] mt-2 uppercase tracking-widest">— Nelson Mandela</p>
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-2xl p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ __('messages.create_account') }}</h2>
-
-            @if($errors->any())
-                <div class="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-                    <ul class="space-y-1">
-                        @foreach($errors->all() as $error)
-                            <li>• {{ $error }}</li>
-                        @endforeach
-                    </ul>
+        <!-- Right Column: Glassmorphic Register Card -->
+        <div class="lg:col-span-5 flex justify-center">
+            <div class="w-full max-w-[480px] bg-[#120e2b]/90 border border-white/[0.07] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-2xl transition duration-300 hover:border-white/[0.1] hover:shadow-purple-500/5">
+                
+                <!-- Card Header -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-11 h-11 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center shrink-0 border border-[#8b5cf6]/20">
+                        <svg class="w-5 h-5 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight" style="font-family: var(--font-display);">Join Nabha Learning</h2>
+                        <p class="text-xs text-slate-400 font-semibold mt-0.5">Create your student or teacher account</p>
+                    </div>
                 </div>
-            @endif
 
-            <form method="POST" action="{{ route('register.post') }}" class="space-y-4"
-                  x-data="{ role: '{{ old('role', 'student') }}' }">
-                @csrf
+                @if($errors->any())
+                    <div class="mb-5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-xs font-semibold">
+                        <ul class="space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>• {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                {{-- Role selector (Robust with hidden radio) --}}
-                <div class="grid grid-cols-2 gap-3 mb-2">
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="role" value="student" x-model="role" 
-                               {{ old('role', 'student') === 'student' ? 'checked' : '' }} class="hidden">
-                        <div :class="role==='student' ? 'border-primary-600 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-500'"
-                             class="p-4 border-2 rounded-2xl text-sm font-bold text-center transition group-hover:border-primary-400">
-                            <div class="text-3xl mb-1">👨‍🎓</div>
-                            {{ __('messages.i_am_student') }}
+                <!-- Form -->
+                <form method="POST" action="{{ route('register.post') }}" class="space-y-4"
+                      x-data="{ role: '{{ old('role', 'student') }}' }">
+                    @csrf
+
+                    {{-- Role selector --}}
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="role" value="student" x-model="role"
+                                   {{ old('role', 'student') === 'student' ? 'checked' : '' }} class="hidden">
+                            <div :class="role==='student' ? 'border-[#8b5cf6]/60 bg-[#8b5cf6]/15 text-[#8b5cf6]' : 'border-white/[0.08] bg-white/[0.02] text-slate-450'"
+                                 class="p-3 border rounded-2xl text-xs font-bold text-center transition duration-200 hover:border-[#8b5cf6]/40">
+                                <div class="text-2xl mb-1">👨&zwj;🎓</div>
+                                Student
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="role" value="teacher" x-model="role"
+                                   {{ old('role') === 'teacher' ? 'checked' : '' }} class="hidden">
+                            <div :class="role==='teacher' ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400' : 'border-white/[0.08] bg-white/[0.02] text-slate-450'"
+                                 class="p-3 border rounded-2xl text-xs font-bold text-center transition duration-200 hover:border-emerald-500/40">
+                                <div class="text-2xl mb-1">👨&zwj;🏫</div>
+                                Teacher
+                            </div>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </span>
+                            <input type="text" name="name" value="{{ old('name') }}" required
+                                   class="w-full pl-11 pr-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="Enter your full name">
                         </div>
-                    </label>
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="role" value="teacher" x-model="role"
-                               {{ old('role') === 'teacher' ? 'checked' : '' }} class="hidden">
-                        <div :class="role==='teacher' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-500'"
-                             class="p-4 border-2 rounded-2xl text-sm font-bold text-center transition group-hover:border-emerald-400">
-                            <div class="text-3xl mb-1">👨‍🏫</div>
-                            {{ __('messages.i_am_teacher') }}
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                                </svg>
+                            </span>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                   class="w-full pl-11 pr-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="Enter your email">
                         </div>
-                    </label>
-                </div>
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.full_name') }}</label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                           placeholder="{{ __('messages.full_name_placeholder') }}">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.email_address') }}</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                           placeholder="{{ __('messages.email_placeholder') }}">
-                </div>
-
-                {{-- Student field --}}
-                <div x-show="role==='student'" x-cloak style="display: none;">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.your_class') }}</label>
-                    <select name="class_level"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
-                        <option value="">{{ __('messages.select_your_class') }}</option>
-                        @foreach(['Class 6','Class 7','Class 8','Class 9','Class 10'] as $class)
-                            <option value="{{ $class }}" {{ old('class_level')===$class ? 'selected':'' }}>{{ $class }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Teacher fields --}}
-                <div x-show="role==='teacher'" x-cloak style="display: none;">
-                    <div class="space-y-4">
+                    {{-- Student fields --}}
+                    <div x-show="role==='student'" x-cloak style="display: none;" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.subject_specialization') }}</label>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Your Class</label>
+                            <select name="class_level"
+                                    class="w-full px-4 py-3 bg-[#161233] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium">
+                                <option value="">Select your class</option>
+                                @foreach(['Class 6','Class 7','Class 8','Class 9','Class 10'] as $class)
+                                    <option value="{{ $class }}" {{ old('class_level')===$class ? 'selected':'' }}>{{ $class }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Your Section</label>
+                            <select name="section"
+                                    class="w-full px-4 py-3 bg-[#161233] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium">
+                                <option value="">Select your section</option>
+                                @foreach(['Section A','Section B','Section C','Section D'] as $sec)
+                                    <option value="{{ $sec }}" {{ old('section')===$sec ? 'selected':'' }}>{{ $sec }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Teacher fields --}}
+                    <div x-show="role==='teacher'" x-cloak style="display: none;" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Subject Specialization</label>
                             <select name="subject_specialization"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition">
-                                <option value="">{{ __('messages.select_your_subject') }}</option>
+                                    class="w-full px-4 py-3 bg-[#161233] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium">
+                                <option value="">Select your subject</option>
                                 @foreach(['Mathematics','Science','English','Hindi','Social Studies','Physical Education'] as $subj)
                                     <option value="{{ $subj }}" {{ old('subject_specialization')===$subj ? 'selected':'' }}>{{ $subj }}</option>
                                 @endforeach
                             </select>
                         </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Qualification <span class="text-gray-400 font-normal">(e.g. B.Ed, M.Sc, B.Tech)</span></label>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Qualification</label>
                             <input type="text" name="qualification" value="{{ old('qualification') }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                                   placeholder="Your highest qualification">
+                                   class="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="e.g. B.Ed, M.Sc, B.Tech">
                         </div>
                     </div>
-                </div>
 
-                <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.phone_optional') }}</label>
-                    <input type="tel" name="phone" value="{{ old('phone') }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                          placeholder="{{ __('messages.phone_placeholder') }}">
-                </div>
-
-                {{-- Password fields side-by-side with toggles --}}
-                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.password') }}</label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Phone Number (Optional)</label>
                         <div class="relative">
-                            <input type="password" name="password" id="reg-password" required
-                                   class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                                   placeholder="{{ __('messages.password_min_chars') }}">
-                            <button type="button"
-                                    onclick="togglePassword('reg-password', this)"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
-                                    tabindex="-1" title="{{ __('messages.show_hide_password') }}">
-                                <svg id="reg-password-eye-show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
-                                <svg id="reg-password-eye-hide" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                </svg>
-                            </button>
+                            </span>
+                            <input type="tel" name="phone" value="{{ old('phone') }}"
+                                   class="w-full pl-11 pr-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="Enter phone number">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('messages.confirm_password') }}</label>
-                        <div class="relative">
-                            <input type="password" name="password_confirmation" id="reg-confirm" required
-                                   class="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
-                                   placeholder="{{ __('messages.repeat_password') }}">
-                            <button type="button"
-                                    onclick="togglePassword('reg-confirm', this)"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
-                                    tabindex="-1" title="{{ __('messages.show_hide_password') }}">
-                                <svg id="reg-confirm-eye-show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                <svg id="reg-confirm-eye-hide" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                </svg>
-                            </button>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+                            <input type="password" name="password" required
+                                   class="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="Min. 8 chars">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Confirm</label>
+                            <input type="password" name="password_confirmation" required
+                                   class="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium"
+                                   placeholder="Repeat password">
                         </div>
                     </div>
+
+                    <button type="submit"
+                            class="w-full bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] hover:from-[#7c3aed] hover:to-[#4f46e5] text-white font-bold py-3.5 rounded-xl transition duration-300 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/35 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-xs uppercase tracking-wider mt-2">
+                        <span>Create Account</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="relative flex py-4 items-center">
+                    <div class="flex-grow border-t border-white/[0.05]"></div>
+                    <span class="flex-shrink mx-4 text-[10px] text-slate-500 font-extrabold uppercase tracking-widest">or</span>
+                    <div class="flex-grow border-t border-white/[0.05]"></div>
                 </div>
 
-                <button type="submit"
-                        class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 rounded-xl transition shadow-md mt-2">
-                    {{ __('messages.create_my_account') }} →
-                </button>
-            </form>
+                <p class="text-center text-xs text-slate-450 font-bold">
+                    Already have an account? 
+                    <a href="{{ route('login') }}" class="text-[#8b5cf6] hover:underline font-extrabold ml-1">Sign In Here</a>
+                </p>
 
-            <p class="text-center text-sm text-gray-500 mt-5">
-                {{ __('messages.already_have_account') }}
-                <a href="{{ route('login') }}" class="text-primary-600 font-semibold hover:underline">{{ __('messages.sign_in_here') }}</a>
-            </p>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full flex items-center justify-between z-20 relative max-w-7xl mx-auto pt-6 border-t border-white/[0.03] text-[10px] text-slate-500 font-semibold">
+        <p>© 2026 Nabha Digital Learning, All rights reserved.</p>
+        <p class="text-[#8b5cf6] font-bold">Rural Education Mission</p>
+    </footer>
 </div>
 
 <script>
-function togglePassword(inputId, btn) {
-    const input  = document.getElementById(inputId);
-    const isHide = input.type === 'password';
-    input.type   = isHide ? 'text' : 'password';
-
-    const showIcon = document.getElementById(inputId + '-eye-show');
-    const hideIcon = document.getElementById(inputId + '-eye-hide');
-    if (showIcon) showIcon.classList.toggle('hidden', isHide);
-    if (hideIcon) hideIcon.classList.toggle('hidden', !isHide);
-}
-
 document.querySelectorAll('a[data-lang]').forEach((el) => {
     el.addEventListener('click', () => {
         localStorage.setItem('applocale', el.getAttribute('data-lang'));
     });
 });
 </script>
+
+<style>
+    /* Full bleed background on left for large devices */
+    @media (min-width: 1024px) {
+        .min-h-screen {
+            background-image: linear-gradient(to right, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 50%, rgba(9, 6, 22, 0.95) 75%, #090616 100%), url('/images/login_bg.png');
+            background-size: auto 100%, cover;
+            background-position: left center, left center;
+            background-repeat: no-repeat;
+        }
+    }
+    
+    /* Mobile-first fallback background */
+    @media (max-width: 1023px) {
+        .min-h-screen {
+            background-image: linear-gradient(to bottom, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 60%, rgba(9, 6, 22, 0.95) 85%, #090616 100%), url('/images/login_bg.png');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+        }
+    }
+    
+    h1, h2, button {
+        font-family: var(--font-display), sans-serif;
+    }
+    
+    .text-slate-350 {
+        color: #cbd5e1;
+    }
+    
+    .text-slate-450 {
+        color: #94a3b8;
+    }
+</style>
 @endsection

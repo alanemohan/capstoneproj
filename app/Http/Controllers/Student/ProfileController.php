@@ -48,6 +48,7 @@ class ProfileController extends Controller
             'gender'      => ['nullable', 'string', 'in:male,female,other'],
             'address'     => ['nullable', 'string', 'max:500'],
             'class_level' => ['nullable', 'string'],
+            'school'      => ['nullable', 'string', 'max:150'],
             'section'     => ['nullable', 'string', 'max:10'],
             'language'    => ['nullable', 'string', 'in:en,hi,pa'],
             'avatar'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],

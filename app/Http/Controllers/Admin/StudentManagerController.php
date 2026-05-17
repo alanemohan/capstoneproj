@@ -53,6 +53,30 @@ class StudentManagerController extends Controller
         return back()->with('success', "Student account has been {$status}.");
     }
 
+    public function approve(User $student)
+    {
+        if ($student->role !== 'student') abort(404);
+        
+        $oldStatus = $student->status;
+        $student->update(['status' => 'approved', 'is_active' => true]);
+        
+        \App\Services\AuditLogger::log('approve_student', $student, ['status' => $oldStatus], ['status' => 'approved']);
+        
+        return back()->with('success', "✅ Student account for {$student->name} has been approved.");
+    }
+
+    public function reject(User $student)
+    {
+        if ($student->role !== 'student') abort(404);
+        
+        $oldStatus = $student->status;
+        $student->update(['status' => 'rejected']);
+        
+        \App\Services\AuditLogger::log('reject_student', $student, ['status' => $oldStatus], ['status' => 'rejected']);
+        
+        return back()->with('success', "❌ Student account for {$student->name} has been rejected.");
+    }
+
     public function destroy(User $student)
     {
         if ($student->role !== 'student') abort(404);

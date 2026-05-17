@@ -16,7 +16,7 @@ class User extends Authenticatable
         'phone', 'school', 'is_active', 'avatar',
         'status', 'streak_count', 'last_login_at',
         'gender', 'address', 'section', 'language',
-        'mentor_id', 'availability',
+        'mentor_id', 'availability', 'low_data_mode',
     ];
 
     protected $hidden = ['password', 'remember_token'];

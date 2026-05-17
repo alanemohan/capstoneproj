@@ -4,98 +4,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="offline-title">Offline | Nabha Learning</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --dark-bg: #0b0f19;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f0ff;
+            --text-secondary: rgba(255, 255, 255, 0.60);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-            color: #111827;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             text-align: center;
-            padding: 20px;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
         }
+
+        /* Abstract Glow Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 1;
+            opacity: 0.15;
+        }
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: -50px;
+            right: -50px;
+        }
+        .orb-2 {
+            width: 250px;
+            height: 250px;
+            background: #06b6d4;
+            bottom: -50px;
+            left: -50px;
+        }
+
         .container {
-            max-width: 400px;
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            max-width: 440px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 48px 36px;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-container {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.15);
+            animation: pulseCircle 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseCircle {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
         .icon {
-            font-size: 64px;
-            margin-bottom: 24px;
-            display: block;
+            font-size: 48px;
+            position: relative;
+            z-index: 2;
         }
+
         h1 {
-            font-size: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 12px;
-            color: #4f46e5;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
+
         p {
-            font-size: 16px;
-            line-height: 1.5;
-            color: #4b5563;
-            margin-bottom: 32px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin: 0 0 32px 0;
         }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .btn {
-            display: inline-block;
-            background-color: #4f46e5;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 16px;
             text-decoration: none;
             font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        .btn:hover {
-            background-color: #4338ca;
-        }
-        .footer {
-            margin-top: 32px;
             font-size: 14px;
-            color: #9ca3af;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.4);
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -6px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .footer {
+            margin-top: 36px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
     <div class="container">
-        <span class="icon">📡❌</span>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span id="badge-text">Connection Lost</span>
+        </div>
+
+        <div class="icon-container">
+            <div class="icon-pulse"></div>
+            <span class="icon">📡</span>
+        </div>
+
         <h1 id="offline-heading">You're Offline</h1>
-        <p id="offline-text">It looks like you've lost your connection. Don't worry, you can still access your already cached lessons!</p>
-        <a href="/" class="btn" id="offline-button">Go to Dashboard</a>
+        <p id="offline-text">It looks like you've lost your connection. Don't worry, you can still access your already cached lessons, quizzes, and scholarships offline!</p>
+
+        <div class="actions">
+            <button onclick="checkConnection()" class="btn" id="retry-button">Try Reconnecting</button>
+            <a href="/" class="btn btn-outline" id="offline-button">View Cached Dashboard</a>
+        </div>
+
         <div class="footer" id="offline-footer">
             &copy; 2026 Nabha Digital Learning
         </div>
     </div>
+
     <script>
         const i18n = {
             en: {
                 title: 'Offline | Nabha Learning',
+                badge: 'Connection Lost',
                 heading: "You're Offline",
-                text: "It looks like you've lost your connection. Don't worry, you can still access your already cached lessons!",
-                button: 'Go to Dashboard',
-                footer: '© 2026 Nabha Digital Learning',
+                text: "It looks like you've lost your connection. Don't worry, you can still access your already cached lessons, quizzes, and scholarships offline!",
+                retry: 'Try Reconnecting',
+                button: 'View Cached Dashboard',
+                footer: '© 2026 Nabha Digital Learning Platform',
+                checking: 'Checking connection...',
+                online: 'Connection restored! Reloading...'
             },
             hi: {
                 title: 'ऑफलाइन | नाभा लर्निंग',
+                badge: 'कनेक्शन टूट गया',
                 heading: 'आप ऑफलाइन हैं',
-                text: 'लगता है आपका कनेक्शन टूट गया है। चिंता न करें, आप पहले से कैश किए गए पाठ अभी भी देख सकते हैं।',
-                button: 'डैशबोर्ड पर जाएं',
-                footer: '© 2026 नाभा डिजिटल लर्निंग',
+                text: 'लगता है आपका इंटरनेट कनेक्शन टूट गया है। चिंता न करें, आप पहले से लोड किए गए पाठ, क्विज़ और योजनाओं को अभी भी ऑफलाइन देख सकते हैं!',
+                retry: 'पुनः प्रयास करें',
+                button: 'कैश किया गया डैशबोर्ड देखें',
+                footer: '© 2026 नाभा डिजिटल लर्निंग प्लेटफॉर्म',
+                checking: 'कनेक्शन की जांच हो रही है...',
+                online: 'कनेक्शन वापस आ गया! लोड हो रहा है...'
             },
             pa: {
                 title: 'ਆਫਲਾਈਨ | ਨਾਭਾ ਲਰਨਿੰਗ',
+                badge: 'ਕਨੈਕਸ਼ਨ ਟੁੱਟ ਗਿਆ',
                 heading: 'ਤੁਸੀਂ ਆਫਲਾਈਨ ਹੋ',
-                text: 'ਲੱਗਦਾ ਹੈ ਤੁਹਾਡਾ ਕਨੈਕਸ਼ਨ ਟੁੱਟ ਗਿਆ ਹੈ। ਚਿੰਤਾ ਨਾ ਕਰੋ, ਤੁਸੀਂ ਪਹਿਲਾਂ ਤੋਂ ਕੈਸ਼ ਕੀਤੇ ਪਾਠ ਵੇਖ ਸਕਦੇ ਹੋ।',
-                button: 'ਡੈਸ਼ਬੋਰਡ ਤੇ ਜਾਓ',
-                footer: '© 2026 ਨਾਭਾ ਡਿਜੀਟਲ ਲਰਨਿੰਗ',
-            },
+                text: 'ਲੱਗਦਾ ਹੈ ਤੁਹਾਡਾ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਟੁੱਟ ਗਿਆ ਹੈ। ਚਿੰਤਾ ਨਾ ਕਰੋ, ਤੁਸੀਂ ਪਹਿਲਾਂ ਤੋਂ ਲੋਡ ਕੀਤੇ ਪਾਠ, ਕੁਇਜ਼ ਅਤੇ ਯੋਜਨਾਵਾਂ ਨੂੰ ਹੁਣ ਵੀ ਆਫਲਾਈਨ ਵੇਖ ਸਕਦੇ ਹੋ!',
+                retry: 'ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
+                button: 'ਕੈਸ਼ ਕੀਤਾ ਡੈਸ਼ਬੋਰਡ ਵੇਖੋ',
+                footer: '© 2026 ਨਾਭਾ ਡਿਜੀਟਲ ਲਰਨਿੰਗ ਪਲੇਟਫਾਰਮ',
+                checking: 'ਕਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ...',
+                online: 'ਕਨੈਕਸ਼ਨ ਵਾਪਸ ਆ ਗਿਆ! ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...'
+            }
         };
 
         const locale = localStorage.getItem('applocale') || 'en';
@@ -103,13 +279,59 @@
 
         document.documentElement.lang = locale;
         document.getElementById('offline-title').textContent = text.title;
+        document.getElementById('badge-text').textContent = text.badge;
         document.getElementById('offline-heading').textContent = text.heading;
         document.getElementById('offline-text').textContent = text.text;
+        document.getElementById('retry-button').textContent = text.retry;
         document.getElementById('offline-button').textContent = text.button;
         document.getElementById('offline-footer').textContent = text.footer;
 
+        function checkConnection() {
+            const btn = document.getElementById('retry-button');
+            btn.disabled = true;
+            btn.textContent = text.checking;
+
+            // Perform check by fetching an tiny resource
+            fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store' })
+                .then(() => {
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    btn.textContent = text.online;
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                })
+                .catch(() => {
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.textContent = text.retry;
+                        // Shake effect on container
+                        const container = document.querySelector('.container');
+                        container.style.animation = 'none';
+                        setTimeout(() => {
+                            container.style.animation = 'shake 0.4s ease';
+                        }, 10);
+                    }, 800);
+                });
+        }
+
+        // Add shake animation styling dynamically
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-8px); }
+                75% { transform: translateX(8px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-refresh when online status returns
         window.addEventListener('online', () => {
-            window.location.reload();
+            document.getElementById('retry-button').style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            document.getElementById('retry-button').textContent = text.online;
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         });
     </script>
 </body>

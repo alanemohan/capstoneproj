@@ -79,4 +79,26 @@ class UserController extends Controller
 
         return redirect()->route('admin.users')->with('success', 'User created successfully.');
     }
+
+    public function approve(User $user)
+    {
+        $oldStatus = $user->status;
+        $user->update(['status' => 'approved', 'is_active' => true]);
+
+        \App\Services\AuditLogger::log('approve_user', $user, ['status' => $oldStatus], ['status' => 'approved']);
+        $user->notify(new \App\Notifications\ApprovalNotification('Profile Registration', 'approved', $user->name));
+
+        return back()->with('success', "✅ {$user->name}'s registration has been approved successfully.");
+    }
+
+    public function reject(User $user)
+    {
+        $oldStatus = $user->status;
+        $user->update(['status' => 'rejected', 'is_active' => false]);
+
+        \App\Services\AuditLogger::log('reject_user', $user, ['status' => $oldStatus], ['status' => 'rejected']);
+        $user->notify(new \App\Notifications\ApprovalNotification('Profile Registration', 'rejected', $user->name));
+
+        return back()->with('success', "❌ {$user->name}'s registration has been rejected.");
+    }
 }

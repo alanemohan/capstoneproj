@@ -23,12 +23,18 @@ class ComplaintController extends Controller
             'message' => 'required|string'
         ]);
 
-        Complaint::create([
+        $complaint = Complaint::create([
             'student_id' => Auth::id(),
             'subject' => $request->subject,
             'message' => $request->message,
             'status' => 'pending'
         ]);
+
+        // Notify all admin users of the new complaint
+        $student = Auth::user();
+        foreach (\App\Models\User::where('role', 'admin')->get() as $admin) {
+            $admin->notify(new \App\Notifications\ComplaintNotification($student->name, $complaint->subject));
+        }
 
         return back()->with('success', __('messages.complaint_submitted_success'));
     }

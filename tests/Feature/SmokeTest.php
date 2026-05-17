@@ -36,4 +36,29 @@ class SmokeTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin/dashboard');
         $response->assertStatus(200);
     }
+
+    public function test_student_complaint_notifies_admins()
+    {
+        $admin = \App\Models\User::factory()->create(['role' => 'admin']);
+        $student = \App\Models\User::factory()->create(['role' => 'student']);
+
+        $response = $this->actingAs($student)->post('/student/complaints', [
+            'subject' => 'Late assignment review',
+            'message' => 'My teacher has not graded my assignment yet.'
+        ]);
+
+        $response->assertRedirect();
+        
+        $this->assertDatabaseHas('complaints', [
+            'student_id' => $student->id,
+            'subject' => 'Late assignment review',
+            'status' => 'pending'
+        ]);
+
+        // Check if the admin user received the database notification
+        $this->assertEquals(1, $admin->notifications()->count());
+        $notification = $admin->notifications()->first();
+        $this->assertEquals('New Complaint Received', $notification->data['title']);
+        $this->assertStringContainsString($student->name, $notification->data['message']);
+    }
 }

@@ -52,6 +52,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/notifications/mark-all-read', function() {
+    auth()->user()->unreadNotifications->markAsRead();
+    return response()->json(['success' => true]);
+})->middleware('auth')->name('notifications.mark-all-read');
+
 
 Route::get('/pending-approval', function () {
     return view('auth.pending-approval');
@@ -111,13 +116,13 @@ Route::middleware(['auth', 'role:student', 'approved'])->prefix('student')->name
     Route::get('/chatbot/history', [ChatbotController::class, 'history'])->name('chatbot.history');
     Route::get('/chatbot/conversations', [ChatbotController::class, 'conversations'])->name('chatbot.conversations');
     Route::post('/chatbot/feedback/{log}', [ChatbotController::class, 'feedback'])->name('chatbot.feedback');
+    Route::post('/chatbot/clear', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear');
 
     // New features
     Route::get('/scholarships', [\App\Http\Controllers\Student\ScholarshipController::class, 'index'])->name('scholarships');
     Route::get('/schemes', [\App\Http\Controllers\Student\SchemeController::class, 'index'])->name('schemes');
-    Route::get('/careers', [\App\Http\Controllers\Student\CareerController::class, 'index'])->name('careers');
-    Route::get('/careers/{id}', [\App\Http\Controllers\Student\CareerController::class, 'show'])->name('careers.show');
     Route::get('/mentors', [\App\Http\Controllers\Student\MentorController::class, 'index'])->name('mentors');
+    Route::post('/mentors/email', [\App\Http\Controllers\Student\MentorController::class, 'sendEmail'])->name('mentors.email');
     Route::get('/complaints', [\App\Http\Controllers\Student\ComplaintController::class, 'index'])->name('complaints');
     Route::post('/complaints', [\App\Http\Controllers\Student\ComplaintController::class, 'store'])->name('complaints.store');
 });
@@ -126,11 +131,22 @@ Route::middleware(['auth', 'role:student', 'approved'])->prefix('student')->name
 Route::middleware(['auth', 'role:teacher', 'approved'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', function () {
         $teacher = auth()->user();
-        $lessonsCount   = \App\Models\Lesson::where('teacher_id', $teacher->id)->count();
-        $quizzesCount   = \App\Models\Quiz::where('teacher_id', $teacher->id)->count();
-        $studentsReached = \App\Models\ProgressReport::whereIn('lesson_id',
-            \App\Models\Lesson::where('teacher_id', $teacher->id)->pluck('id')
-        )->distinct('student_id')->count();
+        $teacherId = $teacher->id;
+
+        $stats = \Illuminate\Support\Facades\Cache::remember("teacher_stats_{$teacherId}", 60, function () use ($teacherId) {
+            $lessonsCount   = \App\Models\Lesson::where('teacher_id', $teacherId)->count();
+            $quizzesCount   = \App\Models\Quiz::where('teacher_id', $teacherId)->count();
+            $studentsReached = \App\Models\ProgressReport::whereIn('lesson_id',
+                \App\Models\Lesson::where('teacher_id', $teacherId)->pluck('id')
+            )->distinct('student_id')->count();
+
+            return compact('lessonsCount', 'quizzesCount', 'studentsReached');
+        });
+
+        $lessonsCount   = $stats['lessonsCount'];
+        $quizzesCount   = $stats['quizzesCount'];
+        $studentsReached = $stats['studentsReached'];
+
         return view('teacher.dashboard', compact('teacher', 'lessonsCount', 'quizzesCount', 'studentsReached'));
     })->name('dashboard');
 
@@ -212,6 +228,7 @@ Route::middleware(['auth', 'role:teacher', 'approved'])->prefix('teacher')->name
 
     // Chatbot widget (teacher)
     Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat')->middleware('throttle:chatbot');
+    Route::post('/chatbot/clear', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear');
 });
 
 // Admin Routes
@@ -233,6 +250,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
     Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::patch('/users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])->name('users.toggle');
+    Route::patch('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
+    Route::patch('/users/{user}/reject', [AdminUserController::class, 'reject'])->name('users.reject');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     // Content
@@ -276,6 +295,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/students-manager/export', [StudentManagerController::class, 'export'])->name('students_manager.export');
     Route::get('/students-manager/{student}', [StudentManagerController::class, 'show'])->name('students_manager.show');
     Route::patch('/students-manager/{student}/toggle', [StudentManagerController::class, 'toggleActive'])->name('students_manager.toggle');
+    Route::patch('/students-manager/{student}/approve', [StudentManagerController::class, 'approve'])->name('students_manager.approve');
+    Route::patch('/students-manager/{student}/reject', [StudentManagerController::class, 'reject'])->name('students_manager.reject');
     Route::delete('/students-manager/{student}', [StudentManagerController::class, 'destroy'])->name('students_manager.destroy');
 
     Route::get('/teachers-manager', [TeacherManagerController::class, 'index'])->name('teachers_manager.index');
@@ -313,4 +334,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Admin Chatbot log access
     Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->name('chatbot.chat')->middleware('throttle:chatbot');
+    Route::post('/chatbot/clear', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear');
 });

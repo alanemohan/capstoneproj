@@ -3,75 +3,75 @@
 @section('title', 'Manage Teachers')
 
 @section('admin-content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex justify-between items-center mb-8">
+<div class="space-y-6 animate-fade-in text-slate-800">
+    <div class="flex items-center justify-between pb-5 border-b border-slate-200 flex-wrap gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Teacher Master List</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">View and manage all registered teachers and their content metrics.</p>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight" style="font-family: var(--font-display);">Teacher Master List</h1>
+            <p class="text-xs text-slate-500 mt-1 font-semibold">View and manage all registered teachers and their content metrics.</p>
         </div>
         
-        <form method="GET" action="{{ route('admin.teachers_manager.index') }}" class="relative w-72">
+        <form method="GET" action="{{ route('admin.teachers_manager.index') }}" class="relative w-64">
             <input type="text" name="search" placeholder="Search teachers..." value="{{ request('search') }}"
-                   class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
-            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/30 text-slate-808 transition">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </form>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Teacher</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Courses</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lessons</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quizzes</th>
-                        <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                        <th class="px-5 py-3">Teacher</th>
+                        <th class="px-5 py-3">Courses</th>
+                        <th class="px-5 py-3">Lessons</th>
+                        <th class="px-5 py-3">Quizzes</th>
+                        <th class="px-5 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody class="divide-y divide-slate-150">
                     @forelse($teachers as $teacher)
-                    <tr class="group hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <img class="h-10 w-10 rounded-full border-2 border-indigo-100 dark:border-indigo-900" src="{{ $teacher->avatar_url }}" alt="">
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white">{{ $teacher->name }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">{{ $teacher->email }}</div>
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <img class="h-9 w-9 rounded-lg object-cover border border-slate-200" src="{{ $teacher->avatar_url }}" alt="">
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm leading-snug" style="font-family: var(--font-display);">{{ $teacher->name }}</div>
+                                    <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ $teacher->email }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                {{ $teacher->courses_count }}
+                        <td class="px-5 py-4">
+                            <span class="text-[9px] font-bold px-2.5 py-0.5 border border-blue-200 bg-blue-50 text-blue-700 rounded-md uppercase tracking-wider">
+                                {{ $teacher->courses_count }} Courses
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                {{ $teacher->lessons_count }}
+                        <td class="px-5 py-4">
+                            <span class="text-[9px] font-bold px-2.5 py-0.5 border border-emerald-200 bg-emerald-50 text-emerald-700 rounded-md uppercase tracking-wider">
+                                {{ $teacher->lessons_count }} Lessons
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                {{ $teacher->quizzes_count }}
+                        <td class="px-5 py-4">
+                            <span class="text-[9px] font-bold px-2.5 py-0.5 border border-purple-200 bg-purple-50 text-purple-700 rounded-md uppercase tracking-wider">
+                                {{ $teacher->quizzes_count }} Quizzes
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex items-center justify-end gap-3">
-                                <a href="{{ route('admin.teachers_manager.show', $teacher) }}" class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent rounded-lg shadow-sm text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('admin.teachers_manager.show', $teacher) }}" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 bg-orange-50 border border-orange-200 hover:text-orange-700 rounded-md text-orange-600 transition shadow-sm">
                                     View Profile
                                 </a>
-                                <form method="POST" action="{{ route('admin.teachers_manager.toggle', $teacher) }}" data-no-loading>
+                                <form method="POST" action="{{ route('admin.teachers_manager.toggle', $teacher) }}" data-no-loading class="inline">
                                     @csrf @method('PATCH')
-                                    <button type="submit" class="inline-flex items-center justify-center px-3 py-1.5 border rounded-lg shadow-sm text-xs font-medium {{ $teacher->is_active ? 'border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100' : 'border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100' }} transition-colors duration-200">
+                                    <button type="submit" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 border rounded-md transition shadow-sm {{ $teacher->is_active ? 'border-red-200 text-red-700 bg-red-50 hover:bg-red-100' : 'border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100' }}">
                                         {{ $teacher->is_active ? 'Suspend' : 'Activate' }}
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('admin.teachers_manager.destroy', $teacher) }}" onsubmit="return confirm('Are you sure you want to delete this teacher?')" data-no-loading>
+                                <form method="POST" action="{{ route('admin.teachers_manager.destroy', $teacher) }}" onsubmit="return confirm('Are you sure you want to delete this teacher?')" data-no-loading class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center justify-center px-3 py-1.5 border border-red-200 rounded-lg shadow-sm text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+                                    <button type="submit" class="text-[10px] font-bold uppercase tracking-wider bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-2.5 py-1.5 rounded-md transition shadow-sm">
                                         Delete
                                     </button>
                                 </form>
@@ -80,18 +80,13 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                            <div class="flex flex-col items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                <p class="text-lg font-medium">No teachers found</p>
-                            </div>
-                        </td>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 font-semibold">No teachers found.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div class="px-5 py-4 border-t border-slate-150 bg-slate-50/50">
             {{ $teachers->links() }}
         </div>
     </div>

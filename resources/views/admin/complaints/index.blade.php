@@ -3,70 +3,72 @@
 @section('title', __('messages.complaints_title'))
 
 @section('admin-content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between">
+<div class="space-y-6 animate-fade-in">
+    <div class="flex items-center justify-between pb-5 border-b border-slate-200">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">{{ __('messages.complaints_title') }}</h1>
-            <p class="text-gray-500 text-sm mt-1">{{ __('messages.review_resolve') }}</p>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight" style="font-family: var(--font-display);">{{ __('messages.complaints_title') }}</h1>
+            <p class="text-xs text-slate-500 mt-1 font-semibold">{{ __('messages.review_resolve') }}</p>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-755 px-4.5 py-3 rounded-lg text-xs font-semibold animate-fade-in">
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-            <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-semibold">
-                <tr>
-                    <th class="px-6 py-4">{{ __('messages.student') }}</th>
-                    <th class="px-6 py-4">{{ __('messages.subject') }}</th>
-                    <th class="px-6 py-4">{{ __('messages.message') }}</th>
-                    <th class="px-6 py-4">{{ __('messages.status') }}</th>
-                    <th class="px-6 py-4 text-right">{{ __('messages.action') }}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse($complaints as $item)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <div class="font-medium text-gray-800">{{ $item->student->name ?? __('messages.unknown_user') }}</div>
-                            <div class="text-xs text-gray-500">{{ $item->student->email ?? '' }}</div>
-                        </td>
-                        <td class="px-6 py-4 font-medium text-gray-800">{{ $item->subject }}</td>
-                        <td class="px-6 py-4 max-w-xs truncate" title="{{ $item->message }}">{{ Str::limit($item->message, 50) }}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {{ $item->status === 'resolved' ? 'bg-emerald-100 text-emerald-800' : 
-                                  ($item->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800') }}">
-                                {{ __('messages.' . $item->status) }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <form method="POST" action="{{ route('admin.complaints.status', $item->id) }}" class="flex items-center justify-end gap-2">
-                                @csrf @method('PATCH')
-                                <select name="status" class="px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                    <option value="pending" {{ $item->status === 'pending' ? 'selected' : '' }}>{{ __('messages.pending') }}</option>
-                                    <option value="resolved" {{ $item->status === 'resolved' ? 'selected' : '' }}>{{ __('messages.resolved') }}</option>
-                                    <option value="rejected" {{ $item->status === 'rejected' ? 'selected' : '' }}>{{ __('messages.rejected') }}</option>
-                                </select>
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-medium">
-                                    {{ __('messages.update') }}
-                                </button>
-                            </form>
-                        </td>
+            <table class="w-full text-xs text-left">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                        <th class="px-5 py-3">{{ __('messages.student') }}</th>
+                        <th class="px-5 py-3">{{ __('messages.subject') }}</th>
+                        <th class="px-5 py-3">{{ __('messages.message') }}</th>
+                        <th class="px-5 py-3">{{ __('messages.status') }}</th>
+                        <th class="px-5 py-3 text-right">Actions</th>
                     </tr>
-                @empty
-                    <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">{{ __('messages.no_complaints_found') }}</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-150">
+                    @forelse($complaints as $item)
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-5 py-4">
+                                <div class="font-bold text-slate-900 leading-snug" style="font-family: var(--font-display);">{{ $item->student->name ?? __('messages.unknown_user') }}</div>
+                                <div class="text-[10px] text-slate-400 font-semibold mt-0.5">{{ $item->student->email ?? '' }}</div>
+                            </td>
+                            <td class="px-5 py-4 font-bold text-slate-800">{{ $item->subject }}</td>
+                            <td class="px-5 py-4 text-slate-555 leading-relaxed max-w-xs truncate" title="{{ $item->message }}">{{ Str::limit($item->message, 50) }}</td>
+                            <td class="px-5 py-4">
+                                <span class="text-[9px] font-bold px-2.5 py-0.5 rounded-md border uppercase tracking-wider
+                                    {{ $item->status === 'resolved' ? 'bg-emerald-50 border-emerald-250 text-emerald-700' : 
+                                      ($item->status === 'rejected' ? 'bg-red-50 border-red-250 text-red-750' : 'bg-amber-50 border-amber-250 text-amber-750') }}">
+                                    {{ __('messages.' . $item->status) }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <form method="POST" action="{{ route('admin.complaints.status', $item->id) }}" class="flex items-center justify-end gap-2">
+                                    @csrf @method('PATCH')
+                                    <select name="status" class="px-2.5 py-1.5 border border-slate-300 rounded-md text-[10px] font-bold uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/30 bg-white text-slate-700">
+                                        <option value="pending" {{ $item->status === 'pending' ? 'selected' : '' }}>{{ __('messages.pending') }}</option>
+                                        <option value="resolved" {{ $item->status === 'resolved' ? 'selected' : '' }}>{{ __('messages.resolved') }}</option>
+                                        <option value="rejected" {{ $item->status === 'rejected' ? 'selected' : '' }}>{{ __('messages.rejected') }}</option>
+                                    </select>
+                                    <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition shadow-sm">
+                                        {{ __('messages.update') }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400 font-semibold">{{ __('messages.no_complaints_found') }}</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
         @if($complaints->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100">{{ $complaints->links() }}</div>
+            <div class="px-5 py-4 border-t border-slate-150">{{ $complaints->links() }}</div>
         @endif
     </div>
 </div>
