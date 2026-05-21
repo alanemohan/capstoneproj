@@ -1,6 +1,6 @@
-# Digital Platform for rural school students n Nabha(LMS)
+# Digital Platform for rural school students in Nabha
 
-An platform built with Laravel, Vite, Tailwind CSS, MySQL. The platform supports students, teachers, and admins with role-based dashboards, multilingual content, offline-first PWA features, chatbot assistance, quizzes, courses, live classes, notifications, complaints, and payment flows.
+A platform built with Laravel, Vite, Tailwind CSS, MySQL. The platform supports students, teachers, and admins with role-based dashboards, multilingual content, offline-first PWA features, chatbot assistance, quizzes, courses, live classes, notifications, complaints, and payment flows.
 
 ## Features
 
