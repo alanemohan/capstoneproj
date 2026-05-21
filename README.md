@@ -1,6 +1,6 @@
-# AI-Powered Learning Management System (LMS)
+# Digital Platform for rural school students n Nabha(LMS)
 
-An AI-powered Learning Management System built with Laravel, Vite, Tailwind CSS, MySQL, and Gemini API integration. The platform supports students, teachers, and admins with role-based dashboards, multilingual content, offline-first PWA features, chatbot assistance, quizzes, courses, live classes, notifications, complaints, and payment flows.
+An platform built with Laravel, Vite, Tailwind CSS, MySQL. The platform supports students, teachers, and admins with role-based dashboards, multilingual content, offline-first PWA features, chatbot assistance, quizzes, courses, live classes, notifications, complaints, and payment flows.
 
 ## Features
 
