@@ -201,82 +201,71 @@ class PWAOfflineStore {
         });
     }
 
-    // ── Dashboard Caching and Offline Fallback ──────────────────────────────
+    // ── Dashboard & Route Caching and Offline Fallback ──────────────────────
     cacheActiveDashboardState() {
         if (!navigator.onLine || !this.db) return;
 
         const path = window.location.pathname;
-        if (path.includes('/dashboard')) {
-            const dashboardKey = path.includes('/student') ? 'student-dash' :
-                                 path.includes('/teacher') ? 'teacher-dash' :
-                                 path.includes('/admin') ? 'admin-dash' : null;
+        if (path === '/' || path.includes('/login') || path.includes('/register') || path.includes('/logout')) {
+            return;
+        }
 
-            if (!dashboardKey) return;
-
-            // Wait 2 seconds after page load to serialize the dashboard state stably
-            setTimeout(() => {
-                const widgets = {};
-                
-                // 1. Stats and metrics serialization
-                const stats = document.querySelectorAll('.glass-card p, .glass-card div.text-2xl, .glass-card div.text-3xl');
-                if (stats.length > 0) {
-                    widgets.stats = Array.from(stats).map(el => el.innerText.trim());
-                }
-
-                // 2. Cache main content container HTML (dashboard widgets structure)
-                const content = document.querySelector('.space-y-6, main, #main-content');
-                if (content) {
-                    widgets.html = content.innerHTML;
-                }
+        // Wait 1.5 seconds after page load to serialize the active layout state stably
+        setTimeout(() => {
+            const content = document.querySelector('.space-y-6, main, #main-content') || document.body;
+            if (content) {
+                const widgets = {
+                    html: content.innerHTML,
+                    timestamp: Date.now()
+                };
 
                 const transaction = this.db.transaction(['dashboard-cache'], 'readwrite');
                 const store = transaction.objectStore('dashboard-cache');
-                store.put({ key: dashboardKey, data: widgets, timestamp: Date.now() });
-                console.log(`[PWA Cache] Cached dashboard view state for key: ${dashboardKey}`);
-            }, 2000);
-        }
+                store.put({ key: path, data: widgets, timestamp: Date.now() });
+                console.log(`[PWA Cache] Cached route view state: ${path}`);
+            }
+        }, 1500);
     }
 
     loadCachedDashboardData() {
         if (navigator.onLine || !this.db) return;
 
         const path = window.location.pathname;
-        if (path.includes('/dashboard')) {
-            const dashboardKey = path.includes('/student') ? 'student-dash' :
-                                 path.includes('/teacher') ? 'teacher-dash' :
-                                 path.includes('/admin') ? 'admin-dash' : null;
+        if (path === '/' || path.includes('/login') || path.includes('/register') || path.includes('/logout')) {
+            return;
+        }
 
-            if (!dashboardKey) return;
+        const transaction = this.db.transaction(['dashboard-cache'], 'readonly');
+        const store = transaction.objectStore('dashboard-cache');
+        const request = store.get(path);
 
-            const transaction = this.db.transaction(['dashboard-cache'], 'readonly');
-            const store = transaction.objectStore('dashboard-cache');
-            const request = store.get(dashboardKey);
+        request.onsuccess = (e) => {
+            const record = e.target.result;
+            if (record && record.data) {
+                console.log(`[PWA Cache] Offline! Restoring cached view state for: ${path}`);
+                
+                const contentContainer = document.querySelector('.space-y-6, main, #main-content') || document.body;
+                if (contentContainer && record.data.html) {
+                    contentContainer.innerHTML = record.data.html;
 
-            request.onsuccess = (e) => {
-                const record = e.target.result;
-                if (record && record.data) {
-                    console.log(`[PWA Cache] Offline! Restoring cached dashboard widgets for key: ${dashboardKey}`);
-                    
-                    // Inject Cached badge dynamically at the top of main content
-                    const contentContainer = document.querySelector('.space-y-6, main, #main-content');
-                    if (contentContainer && record.data.html) {
-                        contentContainer.innerHTML = record.data.html;
-
-                        // Insert Offline Notification Badge at the top of content container
-                        const badge = document.createElement('div');
-                        badge.className = 'w-full mb-4 px-4 py-3 bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold rounded-xl flex items-center justify-between';
-                        badge.innerHTML = `
-                            <div class="flex items-center gap-2">
-                                <span>⚠️</span>
-                                <span>Viewing cached offline data. Some metrics or live updates may be stale.</span>
-                            </div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20">OFFLINE</span>
-                        `;
+                    // Insert Offline Notification Badge at the top of content container
+                    const badge = document.createElement('div');
+                    badge.className = 'w-full mb-4 px-4 py-3 bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold rounded-xl flex items-center justify-between z-50 relative';
+                    badge.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>Viewing cached offline data. Some metrics or live updates may be stale.</span>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 font-bold">OFFLINE</span>
+                    `;
+                    if (contentContainer.firstChild) {
                         contentContainer.insertBefore(badge, contentContainer.firstChild);
+                    } else {
+                        contentContainer.appendChild(badge);
                     }
                 }
-            };
-        }
+            }
+        };
     }
 
     // ── Global Custom Toast Alerts Helper ───────────────────────────────────

@@ -119,7 +119,7 @@ Route::middleware(['auth', 'role:student', 'approved'])->prefix('student')->name
     Route::post('/chatbot/clear', [ChatbotController::class, 'clearHistory'])->name('chatbot.clear');
 
     // New features
-    Route::get('/scholarships', [\App\Http\Controllers\Student\ScholarshipController::class, 'index'])->name('scholarships');
+    Route::get('/live-classes', [\App\Http\Controllers\Student\LiveClassController::class, 'index'])->name('live-classes');
     Route::get('/schemes', [\App\Http\Controllers\Student\SchemeController::class, 'index'])->name('schemes');
     Route::get('/mentors', [\App\Http\Controllers\Student\MentorController::class, 'index'])->name('mentors');
     Route::post('/mentors/email', [\App\Http\Controllers\Student\MentorController::class, 'sendEmail'])->name('mentors.email');
@@ -165,6 +165,7 @@ Route::middleware(['auth', 'role:teacher', 'approved'])->prefix('teacher')->name
     Route::delete('/chatbot-qa/{qa}', [ChatbotQaController::class, 'destroy'])->name('chatbot-qa.destroy');
 
     // Lessons
+    Route::post('/upload-chunk', [\App\Http\Controllers\Teacher\ChunkUploadController::class, 'upload'])->name('upload-chunk');
     Route::get('/lessons', [LessonController::class, 'index'])->name('lessons');
     Route::get('/lessons/create', [LessonController::class, 'create'])->name('lessons.create');
     Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
@@ -308,8 +309,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/mentor-management', [MentorManagementController::class, 'index'])->name('mentor-management.index');
     Route::post('/mentor-management/assign', [MentorManagementController::class, 'assign'])->name('mentor-management.assign');
 
-    // Scholarships
-    Route::resource('scholarships', \App\Http\Controllers\Admin\ScholarshipController::class)->except(['create', 'show', 'edit']);
+
 
     // Government Schemes
     Route::resource('schemes', \App\Http\Controllers\Admin\SchemeController::class)->except(['create', 'show', 'edit']);

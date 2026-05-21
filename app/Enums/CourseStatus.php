@@ -15,7 +15,7 @@ enum CourseStatus: string
     public function canTransitionTo(self $target): bool
     {
         return match ($this) {
-            self::Draft => in_array($target, [self::Pending, self::Archived], true),
+            self::Draft => in_array($target, [self::Pending, self::Published, self::Archived], true),
             self::Pending => in_array($target, [self::Published, self::Rejected, self::OnHold, self::Flagged, self::Archived], true),
             self::Published => in_array($target, [self::OnHold, self::Flagged, self::Archived], true),
             self::Rejected => in_array($target, [self::Pending, self::Archived], true),

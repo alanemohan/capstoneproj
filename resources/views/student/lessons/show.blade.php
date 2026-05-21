@@ -75,12 +75,14 @@
 
         @elseif($lesson->file_type === 'video' && $lesson->file_path)
             <div class="p-4">
-                <video controls class="w-full rounded-lg" style="max-height: 500px;"
-                       onplay="trackProgress({{ $lesson->id }})"
-                       onended="markComplete({{ $lesson->id }})">
-                    <source src="{{ $lesson->file_url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+                <div class="aspect-video bg-black rounded-lg overflow-hidden border border-gray-250">
+                    <video controls class="w-full h-full" style="max-height: 500px;"
+                           onplay="trackProgress({{ $lesson->id }})"
+                           onended="markComplete({{ $lesson->id }})">
+                        <source src="{{ $lesson->file_url }}">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
             </div>
 
         @elseif($lesson->content)

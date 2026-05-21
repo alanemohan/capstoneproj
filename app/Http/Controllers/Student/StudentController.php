@@ -104,9 +104,30 @@ class StudentController extends Controller
         }
 
         $query->where('class_level', $student->class_level);
+        
+        // Restrict lessons belonging to a course to enrolled students only
+        $query->where(function ($q) use ($student) {
+            $q->whereNull('course_id')
+              ->orWhereIn('course_id', function ($sub) use ($student) {
+                  $sub->select('course_id')
+                      ->from('enrollments')
+                      ->where('user_id', $student->id)
+                      ->whereIn('payment_status', ['free', 'paid']);
+              });
+        });
+
         $lessons = $query->latest()->paginate(12);
 
         $subjects = Lesson::published()->forClass($student->class_level)
+            ->where(function ($q) use ($student) {
+                $q->whereNull('course_id')
+                  ->orWhereIn('course_id', function ($sub) use ($student) {
+                      $sub->select('course_id')
+                          ->from('enrollments')
+                          ->where('user_id', $student->id)
+                          ->whereIn('payment_status', ['free', 'paid']);
+                  });
+            })
             ->distinct()->pluck('subject');
 
         return view('student.lessons.index', compact('lessons', 'subjects'));

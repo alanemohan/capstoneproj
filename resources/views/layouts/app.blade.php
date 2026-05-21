@@ -595,7 +595,7 @@
         if (hideIcon) hideIcon.classList.toggle('hidden', !isHide);
     }
 
-    // Instant Premium Navigation Loader
+    // Instant Premium Navigation Loader & Hover Prefetcher
     document.addEventListener('DOMContentLoaded', () => {
         document.body.addEventListener('click', (e) => {
             const link = e.target.closest('a');
@@ -611,7 +611,48 @@
                 showTopLoader();
             }
         });
+
+        // Hover-based Link Prefetcher for Instant-feeling navigation
+        const preloadedUrls = new Set();
+        const prefetchLink = (url) => {
+            if (preloadedUrls.has(url)) return;
+            preloadedUrls.add(url);
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            link.as = 'document';
+            document.head.appendChild(link);
+        };
+        
+        const handleHover = (e) => {
+            const a = e.target.closest('a');
+            if (a && a.href && a.hostname === window.location.hostname && 
+                !a.href.startsWith('#') && 
+                !a.href.startsWith('javascript:') && 
+                !a.target
+            ) {
+                prefetchLink(a.href);
+            }
+        };
+
+        document.body.addEventListener('mouseover', handleHover, { passive: true });
+        document.body.addEventListener('touchstart', handleHover, { passive: true });
     });
+
+    // Lazy Chart Initialization Helper using IntersectionObserver
+    window.lazyRenderChart = function(canvasId, initFn) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    initFn();
+                    observer.disconnect();
+                }
+            });
+        }, { rootMargin: '100px' });
+        observer.observe(canvas);
+    };
 
     window.addEventListener('beforeunload', showTopLoader);
 

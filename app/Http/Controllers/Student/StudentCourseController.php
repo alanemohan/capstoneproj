@@ -21,7 +21,7 @@ class StudentCourseController extends Controller
 
     public function index(Request $request)
     {
-        $query = Course::published()->with('teacher')->withCount(['lessons', 'enrollments']);
+        $query = Course::published()->with('teacher')->withCount(['lessons' => fn ($q) => $q->published(), 'enrollments']);
 
         if ($s = $request->subject) {
             $query->where('subject', $s);
@@ -61,7 +61,7 @@ class StudentCourseController extends Controller
         $course->load([
             'teacher',
             'enrollments',
-            'lessons' => fn ($q) => $q->orderBy('order'),
+            'lessons' => fn ($q) => $q->published()->orderBy('order'),
         ]);
 
         $isEnrolled   = $this->enrollment->isEnrolled(auth()->user(), $course);
@@ -283,7 +283,10 @@ class StudentCourseController extends Controller
     {
         $enrollments = auth()->user()
             ->enrollments()
-            ->with(['course' => fn ($q) => $q->withCount('lessons')->with('teacher')])
+            ->with([
+                'course' => fn ($q) => $q->withCount(['lessons' => fn ($l) => $l->published()])
+                                         ->with(['lessons' => fn ($l) => $l->published()->orderBy('order'), 'teacher'])
+            ])
             ->latest()
             ->get();
 
@@ -342,7 +345,7 @@ class StudentCourseController extends Controller
         $lesson->load('contents');
         $lesson->incrementViews();
 
-        $allLessons = $course->lessons()->orderBy('order')->get();
+        $allLessons = $course->lessons()->published()->orderBy('order')->get();
         $currentIdx = $allLessons->search(fn ($l) => $l->id === $lesson->id);
         $prev       = $currentIdx > 0 ? $allLessons[$currentIdx - 1] : null;
         $next       = $currentIdx < $allLessons->count() - 1 ? $allLessons[$currentIdx + 1] : null;
@@ -388,7 +391,7 @@ class StudentCourseController extends Controller
             \Illuminate\Support\Facades\Cache::forget("student_subject_scores_" . auth()->id());
             \Illuminate\Support\Facades\Cache::forget("student_weekly_progress_" . auth()->id());
 
-            $allLessons = $course->lessons()->orderBy('order')->get();
+            $allLessons = $course->lessons()->published()->orderBy('order')->get();
             $currentIdx = $allLessons->search(fn ($l) => $l->id === $lesson->id);
             $next       = $currentIdx < $allLessons->count() - 1 ? $allLessons[$currentIdx + 1] : null;
 

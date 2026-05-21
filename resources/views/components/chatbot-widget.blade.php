@@ -107,6 +107,18 @@ function lmsChatbot(chatUrl, csrfToken) {
             this.messages.push({id:++this.msgCounter, role:'user', text});
             this.input=''; this.loading=true; this.typing=true;
             this.$nextTick(()=>this.scrollBottom());
+
+            if (!this.isOnline) {
+                setTimeout(() => {
+                    this.typing = false;
+                    const responseText = this.getOfflineResponse(text);
+                    this.messages.push({id: ++this.msgCounter, role: 'bot', text: responseText, source: 'Offline Knowledge Base'});
+                    this.loading = false;
+                    this.$nextTick(() => this.scrollBottom());
+                }, 800);
+                return;
+            }
+
             try {
                 const resp=await fetch(chatUrl,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrfToken,'Accept':'application/json'},body:JSON.stringify({message:text,conversation_id:this.convId})});
                 const data=await resp.json(); this.typing=false;
@@ -114,6 +126,32 @@ function lmsChatbot(chatUrl, csrfToken) {
                 else{this.messages.push({id:++this.msgCounter, role:'bot', text:'⚠️ Sorry, please try again.'})}
             }catch(e){this.typing=false;this.messages.push({id:++this.msgCounter, role:'bot', text:'⚠️ Connection error. Please try again.'})}
             this.loading=false;this.$nextTick(()=>this.scrollBottom());
+        },
+
+        getOfflineResponse(query) {
+            const q = query.toLowerCase();
+            if (q.includes('hello') || q.includes('hi') || q.includes('hey') || q.includes('namaste')) {
+                return "Namaste! 👋 I am in **Offline AI Mode** right now. How can I help you navigate Nabha Learning while offline?";
+            }
+            if (q.includes('course') || q.includes('lesson') || q.includes('study') || q.includes('class')) {
+                return "📚 **Courses & Lessons Offline Access:**\nYour previously visited courses and lesson materials are fully cached in IndexedDB. You can read, view content, and study existing lessons even without internet connection!";
+            }
+            if (q.includes('quiz') || q.includes('test') || q.includes('exam')) {
+                return "📝 **Offline Quizzes:**\nYou can view and attempt previously loaded quizzes. Your quiz attempts will be securely saved locally and synced automatically once you are back online!";
+            }
+            if (q.includes('scheme') || q.includes('government') || q.includes('scholarship')) {
+                return "🏛️ **Government Schemes:**\nThe Government Schemes directory remains fully accessible offline! You can view scheme titles, descriptions, eligibility criteria, and deadlines from the local cache.";
+            }
+            if (q.includes('live') || q.includes('stream') || q.includes('zoom')) {
+                return "🎥 **Live Classes:**\nLive streaming requires an active internet connection. However, you can still view schedules, timings, and teacher details for all upcoming live classes offline.";
+            }
+            if (q.includes('sync') || q.includes('internet') || q.includes('online')) {
+                return "🔄 **Smart Background Sync:**\nAny complaints, quiz attempts, or profile updates you make offline are queued locally. As soon as you reconnect to the internet, Nabha PWA will sync them automatically with the server!";
+            }
+            if (q.includes('help') || q.includes('complaint') || q.includes('support')) {
+                return "🤝 **Student Support:**\nYou can file a support request or complaint. While offline, your complaints are stored locally and will be uploaded automatically once internet is restored.";
+            }
+            return "🤖 **Nabha Learning Offline Mode:**\nI am currently operating using the local offline knowledge base. I can answer questions about your courses, government schemes, quiz syncs, and live schedules. Ask me specifically about any of these!";
         },
 
         scrollBottom(){const el=this.$refs.messages; if(el) el.scrollTop=el.scrollHeight},

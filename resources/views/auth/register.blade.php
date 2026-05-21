@@ -197,16 +197,6 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Your Section</label>
-                            <select name="section"
-                                    class="w-full px-4 py-3 bg-[#161233] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/40 focus:border-[#8b5cf6]/30 transition text-xs font-medium">
-                                <option value="">Select your section</option>
-                                @foreach(['Section A','Section B','Section C','Section D'] as $sec)
-                                    <option value="{{ $sec }}" {{ old('section')===$sec ? 'selected':'' }}>{{ $sec }}</option>
-                                @endforeach
-                            </select>
-                        </div>
                     </div>
 
                     {{-- Teacher fields --}}
@@ -301,7 +291,7 @@ document.querySelectorAll('a[data-lang]').forEach((el) => {
     /* Full bleed background on left for large devices */
     @media (min-width: 1024px) {
         .min-h-screen {
-            background-image: linear-gradient(to right, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 50%, rgba(9, 6, 22, 0.95) 75%, #090616 100%), url('/images/login_bg.png');
+            background-image: linear-gradient(to right, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 50%, rgba(9, 6, 22, 0.95) 75%, #090616 100%), url('/images/login_bg.png?v=2026');
             background-size: auto 100%, cover;
             background-position: left center, left center;
             background-repeat: no-repeat;
@@ -311,7 +301,7 @@ document.querySelectorAll('a[data-lang]').forEach((el) => {
     /* Mobile-first fallback background */
     @media (max-width: 1023px) {
         .min-h-screen {
-            background-image: linear-gradient(to bottom, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 60%, rgba(9, 6, 22, 0.95) 85%, #090616 100%), url('/images/login_bg.png');
+            background-image: linear-gradient(to bottom, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 60%, rgba(9, 6, 22, 0.95) 85%, #090616 100%), url('/images/login_bg.png?v=2026');
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;

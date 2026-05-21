@@ -113,8 +113,8 @@
                                         </a>
                                     </div>
                                 @else
-                                    <div class="rounded-xl overflow-hidden bg-black/60 shadow-inner border border-white/[0.08]">
-                                        <video controls class="w-full" style="max-height:65vh;" preload="metadata">
+                                    <div class="rounded-xl overflow-hidden bg-black/60 shadow-inner border border-white/[0.08] aspect-video">
+                                        <video controls class="w-full h-full" style="max-height:65vh;" preload="metadata">
                                             <source src="{{ $block->file_url }}">
                                             <p class="text-white/60 text-xs p-4">Your browser does not support video playback.</p>
                                         </video>
@@ -164,8 +164,8 @@
                                         </a>
                                     </div>
                                 @else
-                                    <div class="rounded-xl overflow-hidden bg-black/60 border border-white/[0.08]">
-                                        <video controls class="w-full" style="max-height:65vh;" preload="metadata">
+                                    <div class="rounded-xl overflow-hidden bg-black/60 border border-white/[0.08] aspect-video">
+                                        <video controls class="w-full h-full" style="max-height:65vh;" preload="metadata">
                                             <source src="{{ $lesson->file_url }}">
                                         </video>
                                     </div>

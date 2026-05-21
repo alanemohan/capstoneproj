@@ -53,7 +53,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Models\QuizAttempt::class,
             \App\Models\Payment::class,
             \App\Models\Complaint::class,
-            \App\Models\Scholarship::class,
             \App\Models\GovernmentScheme::class,
         ];
 

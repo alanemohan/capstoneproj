@@ -154,7 +154,7 @@
                         $modules = [
                             __('messages.learning' ) => [
                                 ['route' => 'student.courses',    'label' => __('messages.courses'),      'icon' => '📚'],
-                                ['route' => 'student.scholarships', 'label' => __('messages.scholarships'), 'icon' => '🎓'],
+                                ['route' => 'student.live-classes', 'label' => __('messages.live_classes'), 'icon' => '🔴'],
                                 ['route' => 'student.schemes',    'label' => __('messages.schemes'),      'icon' => '🏛️'],
                             ],
                             __('messages.assessments') => [
@@ -214,9 +214,9 @@
             <span class="text-lg leading-none mb-0.5">📚</span>
             <span class="text-[9px] font-semibold">{{ __('messages.courses') }}</span>
         </a>
-        <a href="{{ route('student.scholarships') }}" class="flex flex-col items-center p-3 {{ request()->routeIs('student.scholarships') ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-white/30' }}">
-            <span class="text-lg leading-none mb-0.5">🎓</span>
-            <span class="text-[9px] font-semibold">{{ __('messages.aid') }}</span>
+        <a href="{{ route('student.live-classes') }}" class="flex flex-col items-center p-3 {{ request()->routeIs('student.live-classes') ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-white/30' }}">
+            <span class="text-lg leading-none mb-0.5">🔴</span>
+            <span class="text-[9px] font-semibold">{{ __('messages.live_classes') }}</span>
         </a>
         <a href="{{ route('student.profile') }}" class="flex flex-col items-center p-3 {{ request()->routeIs('student.profile') ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-white/30' }}">
             <span class="text-lg leading-none mb-0.5">👤</span>

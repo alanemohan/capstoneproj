@@ -124,64 +124,74 @@
 document.addEventListener("DOMContentLoaded", function() {
     try {
         if (typeof Chart !== 'undefined') {
-            const ctx = document.getElementById('teacherChart').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 240);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
-            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+            const canvas = document.getElementById('teacherChart');
+            if (canvas) {
+                const renderTeacherChart = () => {
+                    const ctx = canvas.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+                    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+                    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
 
-            Chart.defaults.color = '#9ca3af';
-            if (Chart.defaults.font) {
-                Chart.defaults.font.family = "'Inter', sans-serif";
-            }
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
-                    datasets: [{
-                        label: '{{ __('messages.active_students') }}',
-                        data: [12, 19, 25, 22, 30, Math.max(35, {{ $studentsReached ?? 0 }})],
-                        borderColor: '#10b981',
-                        backgroundColor: gradient,
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#10b981',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1f2937',
-                            titleColor: '#f9fafb',
-                            bodyColor: '#d1d5db',
-                            padding: 10,
-                            cornerRadius: 8,
-                            displayColors: false,
-                            titleFont: { size: 11, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f3f4f6' },
-                            ticks: { font: { size: 10 }, color: '#9ca3af' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 10 }, color: '#9ca3af' }
-                        }
+                    Chart.defaults.color = '#9ca3af';
+                    if (Chart.defaults.font) {
+                        Chart.defaults.font.family = "'Inter', sans-serif";
                     }
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                            datasets: [{
+                                label: '{{ __('messages.active_students') }}',
+                                data: [12, 19, 25, 22, 30, Math.max(35, {{ $studentsReached ?? 0 }})],
+                                borderColor: '#10b981',
+                                backgroundColor: gradient,
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#10b981',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#1f2937',
+                                    titleColor: '#f9fafb',
+                                    bodyColor: '#d1d5db',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    displayColors: false,
+                                    titleFont: { size: 11, weight: 'bold' },
+                                    bodyFont: { size: 11 },
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f3f4f6' },
+                                    ticks: { font: { size: 10 }, color: '#9ca3af' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { size: 10 }, color: '#9ca3af' }
+                                }
+                            }
+                        }
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('teacherChart', renderTeacherChart);
+                } else {
+                    renderTeacherChart();
                 }
-            });
+            }
         }
     } catch (e) {
         console.error("Error loading teacher dashboard chart: ", e);

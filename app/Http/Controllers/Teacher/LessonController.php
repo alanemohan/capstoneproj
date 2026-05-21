@@ -20,7 +20,8 @@ class LessonController extends Controller
 
     public function create()
     {
-        return view('teacher.lessons.create');
+        $courses = \App\Models\Course::where('teacher_id', auth()->id())->get();
+        return view('teacher.lessons.create', compact('courses'));
     }
 
     public function store(Request $request)
@@ -33,12 +34,16 @@ class LessonController extends Controller
             'language' => ['required', 'string', 'in:en,hi,pa'],
             'file_type' => ['required', 'in:pdf,video,text,image'],
             'content' => ['nullable', 'string'],
-            'file' => ['nullable', 'file', 'max:51200', 'mimes:pdf,mp4,webm,jpg,jpeg,png'],
+            'file' => ['nullable', 'file', 'max:512000', 'mimes:pdf,mp4,mov,avi,mkv,webm,jpg,jpeg,png'],
+            'file_path' => ['nullable', 'string'],
             'duration_minutes' => ['nullable', 'integer', 'min:1'],
+            'course_id' => ['nullable', 'exists:courses,id'],
         ]);
 
         $filePath = null;
-        if ($request->hasFile('file')) {
+        if ($request->filled('file_path')) {
+            $filePath = $request->input('file_path');
+        } elseif ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('lessons', 'public');
         }
 
@@ -54,7 +59,15 @@ class LessonController extends Controller
             'file_path' => $filePath,
             'duration_minutes' => $validated['duration_minutes'] ?? null,
             'status' => 'pending',
+            'course_id' => $validated['course_id'] ?? null,
         ]);
+
+        $teacherId = auth()->id();
+        \Illuminate\Support\Facades\Cache::forget("teacher_stats_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("teacher_analytics_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("admin.dashboard.stats");
+        \Illuminate\Support\Facades\Cache::forget("catalog.subjects");
+        \Illuminate\Support\Facades\Cache::forget("catalog.class_levels");
 
         return redirect()->route('teacher.lessons')
             ->with('success', 'Lesson submitted for approval! Admin will review it shortly.');
@@ -63,7 +76,8 @@ class LessonController extends Controller
     public function edit(Lesson $lesson)
     {
         $this->authorize('update', $lesson);
-        return view('teacher.lessons.create', compact('lesson'));
+        $courses = \App\Models\Course::where('teacher_id', auth()->id())->get();
+        return view('teacher.lessons.create', compact('lesson', 'courses'));
     }
 
     public function update(Request $request, Lesson $lesson)
@@ -77,17 +91,36 @@ class LessonController extends Controller
             'class_level' => ['required', 'string'],
             'language' => ['required', 'string', 'in:en,hi,pa'],
             'content' => ['nullable', 'string'],
+            'file' => ['nullable', 'file', 'max:512000', 'mimes:pdf,mp4,mov,avi,mkv,webm,jpg,jpeg,png'],
+            'file_path' => ['nullable', 'string'],
             'duration_minutes' => ['nullable', 'integer', 'min:1'],
+            'course_id' => ['nullable', 'exists:courses,id'],
         ]);
 
-        if ($request->hasFile('file')) {
+        if ($request->filled('file_path')) {
+            if ($lesson->file_path && $lesson->file_path !== $request->input('file_path')) {
+                Storage::disk('public')->delete($lesson->file_path);
+            }
+            $validated['file_path'] = $request->input('file_path');
+        } elseif ($request->hasFile('file')) {
             if ($lesson->file_path) {
                 Storage::disk('public')->delete($lesson->file_path);
             }
             $validated['file_path'] = $request->file('file')->store('lessons', 'public');
         }
 
+        // Exclude file object if present to avoid update issues
+        unset($validated['file']);
+
         $lesson->update(array_merge($validated, ['status' => 'pending']));
+
+        $teacherId = auth()->id();
+        \Illuminate\Support\Facades\Cache::forget("teacher_stats_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("teacher_analytics_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("admin.dashboard.stats");
+        \Illuminate\Support\Facades\Cache::forget("catalog.subjects");
+        \Illuminate\Support\Facades\Cache::forget("catalog.class_levels");
+
         return redirect()->route('teacher.lessons')->with('success', 'Lesson updated and resubmitted for approval.');
     }
 
@@ -98,6 +131,14 @@ class LessonController extends Controller
             Storage::disk('public')->delete($lesson->file_path);
         }
         $lesson->delete();
+
+        $teacherId = auth()->id();
+        \Illuminate\Support\Facades\Cache::forget("teacher_stats_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("teacher_analytics_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("admin.dashboard.stats");
+        \Illuminate\Support\Facades\Cache::forget("catalog.subjects");
+        \Illuminate\Support\Facades\Cache::forget("catalog.class_levels");
+
         return redirect()->route('teacher.lessons')->with('success', 'Lesson deleted.');
     }
 }

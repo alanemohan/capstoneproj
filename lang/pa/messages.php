@@ -35,6 +35,7 @@ return [
     'system_overview' => 'ਸਿਸਟਮ ਦੀ ਸੰਖੇਪ ਜਾਣਕਾਰੀ',
     'quick_actions' => 'ਤੁਰੰਤ ਕਾਰਵਾਈਆਂ',
     'tips' => 'ਸੁਝਾਅ',
+    'live_classes' => 'ਲਾਈਵ ਕਲਾਸਾਂ',
 
     // Student Dashboard
     'keep_learning' => 'ਸਿੱਖਦੇ ਰਹੋ, ਹਰ ਪਾਠ ਤੁਹਾਨੂੰ ਤੁਹਾਡੇ ਟੀਚਿਆਂ ਦੇ ਨੇੜੇ ਲੈ ਜਾਂਦਾ ਹੈ!',

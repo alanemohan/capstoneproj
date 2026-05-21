@@ -171,7 +171,8 @@ class CourseController extends Controller
             'contents.*.type'         => ['required', 'in:video,pdf,image,text'],
             'contents.*.title'        => ['nullable', 'string', 'max:200'],
             'contents.*.content_text' => ['nullable', 'string'],
-            'contents.*.file'         => ['nullable', 'file', 'max:102400', 'mimes:pdf,mp4,webm,mov,avi,jpg,jpeg,png,gif,webp'],
+            'contents.*.file'         => ['nullable', 'file', 'max:512000', 'mimes:pdf,mp4,webm,mov,avi,mkv,jpg,jpeg,png,gif,webp'],
+            'contents.*.file_path'    => ['nullable', 'string'],
         ]);
 
         try {
@@ -195,10 +196,12 @@ class CourseController extends Controller
         $uploadErrors = [];
         foreach ($request->contents as $i => $block) {
             $filePath = null;
-            if (isset($block['file']) && $request->hasFile("contents.{$i}.file")) {
+            if (!empty($block['file_path'])) {
+                $filePath = $block['file_path'];
+            } elseif (isset($block['file']) && $request->hasFile("contents.{$i}.file")) {
                 $uploadFile = $request->file("contents.{$i}.file");
                 if (!$uploadFile->isValid()) {
-                    $uploadErrors[] = "Block " . ($i + 1) . ": Upload invalid — file may be too large. Max size is 100MB.";
+                    $uploadErrors[] = "Block " . ($i + 1) . ": Upload invalid — file may be too large. Max size is 500MB.";
                     continue;
                 }
                 try {
@@ -224,6 +227,13 @@ class CourseController extends Controller
             ]);
         }
 
+        $teacherId = auth()->id();
+        \Illuminate\Support\Facades\Cache::forget("teacher_stats_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("teacher_analytics_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("admin.dashboard.stats");
+        \Illuminate\Support\Facades\Cache::forget("catalog.subjects");
+        \Illuminate\Support\Facades\Cache::forget("catalog.class_levels");
+
         if (!empty($uploadErrors)) {
             $errorList = implode('; ', $uploadErrors);
             return redirect()->route('teacher.courses.show', $course)
@@ -245,6 +255,14 @@ class CourseController extends Controller
         }
 
         $lesson->delete();
+
+        $teacherId = auth()->id();
+        \Illuminate\Support\Facades\Cache::forget("teacher_stats_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("teacher_analytics_{$teacherId}");
+        \Illuminate\Support\Facades\Cache::forget("admin.dashboard.stats");
+        \Illuminate\Support\Facades\Cache::forget("catalog.subjects");
+        \Illuminate\Support\Facades\Cache::forget("catalog.class_levels");
+
         return back()->with('success', 'Lesson removed from course.');
     }
 }

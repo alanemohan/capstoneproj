@@ -35,6 +35,7 @@ return [
     'system_overview' => 'System Overview',
     'quick_actions' => 'Quick Actions',
     'tips' => 'Tips',
+    'live_classes' => 'Live Classes',
 
     // Student Dashboard
     'keep_learning' => 'Keep learning, every lesson brings you closer to your goals!',

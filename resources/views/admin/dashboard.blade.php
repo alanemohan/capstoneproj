@@ -287,77 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            /* ── Weekly Activity Multi-Bar Chart ── */
-            const weeklyCtx = document.getElementById('weeklyActivityChart');
-            if (weeklyCtx) {
-                new Chart(weeklyCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(weeklyActivity),
-                        datasets: [
-                            {
-                                label: 'Enrollments',
-                                data: Object.values(weeklyActivity).map(d => d.enrollments),
-                                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                                borderRadius: 4,
-                            },
-                            {
-                                label: 'Attempts',
-                                data: Object.values(weeklyActivity).map(d => d.attempts),
-                                backgroundColor: 'rgba(139, 92, 246, 0.8)',
-                                borderRadius: 4,
-                            },
-                            {
-                                label: 'Completions',
-                                data: Object.values(weeklyActivity).map(d => d.completions),
-                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                                borderRadius: 4,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 15, font: { size: 9, weight: 'bold' } } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { precision: 0 } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-            }
-
-            /* ── Subject Performance Radar Chart ── */
-            const subjectCtx = document.getElementById('subjectStatsChart');
-            if (subjectCtx) {
-                new Chart(subjectCtx, {
-                    type: 'radar',
-                    data: {
-                        labels: Object.keys(subjectStats),
-                        datasets: [{
-                            label: 'Avg Score %',
-                            data: Object.values(subjectStats),
-                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                            borderColor: 'rgba(249, 115, 22, 0.8)',
-                            borderWidth: 2,
-                            pointBackgroundColor: 'rgba(249, 115, 22, 1)',
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: { beginAtZero: true, max: 100, ticks: { display: false } }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
-                });
-            }
-
             /* ── Shared chart defaults ── */
             Chart.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
             Chart.defaults.font.size   = 10;
@@ -390,99 +319,205 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
             });
 
+            /* ── Weekly Activity Multi-Bar Chart ── */
+            const weeklyCtx = document.getElementById('weeklyActivityChart');
+            if (weeklyCtx) {
+                const renderWeekly = () => {
+                    new Chart(weeklyCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(weeklyActivity),
+                            datasets: [
+                                {
+                                    label: 'Enrollments',
+                                    data: Object.values(weeklyActivity).map(d => d.enrollments),
+                                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                    borderRadius: 4,
+                                },
+                                {
+                                    label: 'Attempts',
+                                    data: Object.values(weeklyActivity).map(d => d.attempts),
+                                    backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                                    borderRadius: 4,
+                                },
+                                {
+                                    label: 'Completions',
+                                    data: Object.values(weeklyActivity).map(d => d.completions),
+                                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                    borderRadius: 4,
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom', labels: { boxWidth: 10, padding: 15, font: { size: 9, weight: 'bold' } } }
+                            },
+                            scales: {
+                                y: { beginAtZero: true, ticks: { precision: 0 } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('weeklyActivityChart', renderWeekly);
+                } else {
+                    renderWeekly();
+                }
+            }
+
+            /* ── Subject Performance Radar Chart ── */
+            const subjectCtx = document.getElementById('subjectStatsChart');
+            if (subjectCtx) {
+                const renderSubject = () => {
+                    new Chart(subjectCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: Object.keys(subjectStats),
+                            datasets: [{
+                                label: 'Avg Score %',
+                                data: Object.values(subjectStats),
+                                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                                borderColor: 'rgba(249, 115, 22, 0.8)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(249, 115, 22, 1)',
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: { beginAtZero: true, max: 100, ticks: { display: false } }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('subjectStatsChart', renderSubject);
+                } else {
+                    renderSubject();
+                }
+            }
+
             /* ── Registrations bar chart ── */
             const regCtx = document.getElementById('regChart');
             if (regCtx) {
-                new Chart(regCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(regData),
-                        datasets: [{
-                            label: @json(__('messages.chart_registrations')),
-                            data: Object.values(regData),
-                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                            hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
-                            borderRadius: 4,
-                            borderSkipped: false,
-                        }],
-                    },
-                    options: baseOpts(),
-                });
+                const renderReg = () => {
+                    new Chart(regCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(regData),
+                            datasets: [{
+                                label: @json(__('messages.chart_registrations')),
+                                data: Object.values(regData),
+                                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
+                                borderRadius: 4,
+                                borderSkipped: false,
+                            }],
+                        },
+                        options: baseOpts(),
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('regChart', renderReg);
+                } else {
+                    renderReg();
+                }
             }
 
             /* ── Revenue area chart ── */
             const revCtx = document.getElementById('revenueChart');
             if (revCtx) {
-                new Chart(revCtx, {
-                    type: 'line',
-                    data: {
-                        labels: Object.keys(revenueData),
-                        datasets: [{
-                            label: @json(__('messages.revenue')) + ' (₹)',
-                            data: Object.values(revenueData),
-                            borderColor: 'rgba(249, 115, 22, 1)',
-                            backgroundColor: (ctx) => {
-                                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
-                                g.addColorStop(0,   'rgba(249,115,22,.15)');
-                                g.addColorStop(1,   'rgba(249,115,22,.01)');
-                                return g;
-                            },
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: 'rgba(249, 115, 22, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 1.5,
-                            pointRadius: 3,
-                            pointHoverRadius: 5,
-                        }],
-                    },
-                    options: baseOpts(),
-                });
+                const renderRev = () => {
+                    new Chart(revCtx, {
+                        type: 'line',
+                        data: {
+                            labels: Object.keys(revenueData),
+                            datasets: [{
+                                label: @json(__('messages.revenue')) + ' (₹)',
+                                data: Object.values(revenueData),
+                                borderColor: 'rgba(249, 115, 22, 1)',
+                                backgroundColor: (ctx) => {
+                                    const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+                                    g.addColorStop(0,   'rgba(249,115,22,.15)');
+                                    g.addColorStop(1,   'rgba(249,115,22,.01)');
+                                    return g;
+                                },
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: 'rgba(249, 115, 22, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 1.5,
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                            }],
+                        },
+                        options: baseOpts(),
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('revenueChart', renderRev);
+                } else {
+                    renderRev();
+                }
             }
 
             /* ── Role donut ── */
             const roleCtx = document.getElementById('roleChart');
             if (roleCtx) {
-                new Chart(roleCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(roleData),
-                        datasets: [{
-                            data: Object.values(roleData),
-                            backgroundColor: [
-                                'rgba(59,  130, 246, .8)',
-                                'rgba(16,  185, 129, .8)',
-                                'rgba(148, 163, 184, .8)',
-                            ],
-                            hoverBackgroundColor: [
-                                'rgba(59,  130, 246, 1)',
-                                'rgba(16,  185, 129, 1)',
-                                'rgba(148, 163, 184, 1)',
-                            ],
-                            borderWidth: 2,
-                            borderColor: '#fff',
-                            hoverBorderWidth: 2,
-                        }],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '72%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { boxWidth: 8, padding: 10, usePointStyle: true, font: { size: 9, weight: 'bold' } },
-                            },
-                            tooltip: {
-                                backgroundColor: '#0f172a',
-                                titleColor: '#f8fafc',
-                                bodyColor: '#e2e8f0',
-                                padding: 8,
-                                cornerRadius: 6,
+                const renderRole = () => {
+                    new Chart(roleCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(roleData),
+                            datasets: [{
+                                data: Object.values(roleData),
+                                backgroundColor: [
+                                    'rgba(59,  130, 246, .8)',
+                                    'rgba(16,  185, 129, .8)',
+                                    'rgba(148, 163, 184, .8)',
+                                ],
+                                hoverBackgroundColor: [
+                                    'rgba(59,  130, 246, 1)',
+                                    'rgba(16,  185, 129, 1)',
+                                    'rgba(148, 163, 184, 1)',
+                                ],
+                                borderWidth: 2,
+                                borderColor: '#fff',
+                                hoverBorderWidth: 2,
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '72%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { boxWidth: 8, padding: 10, usePointStyle: true, font: { size: 9, weight: 'bold' } },
+                                },
+                                tooltip: {
+                                    backgroundColor: '#0f172a',
+                                    titleColor: '#f8fafc',
+                                    bodyColor: '#e2e8f0',
+                                    padding: 8,
+                                    cornerRadius: 6,
+                                },
                             },
                         },
-                    },
-                });
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('roleChart', renderRole);
+                } else {
+                    renderRole();
+                }
             }
         };
 

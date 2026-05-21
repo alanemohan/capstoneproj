@@ -235,75 +235,89 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const weeklyCanvas = document.getElementById('weeklyChart');
             if (weeklyCanvas) {
-                new Chart(weeklyCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(weeklyData),
-                        datasets: [{
-                            label: @json(__('messages.chart_lessons')),
-                            data: Object.values(weeklyData),
-                            backgroundColor: (ctx) => {
-                                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
-                                g.addColorStop(0, 'rgba(139, 92, 246, 0.7)');
-                                g.addColorStop(1, 'rgba(139, 92, 246, 0.15)');
-                                return g;
-                            },
-                            borderRadius: 8,
-                            borderSkipped: false,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { 
-                                beginAtZero: true, 
-                                ticks: { stepSize: 1, color: 'rgba(255,255,255,0.4)' }, 
-                                grid: { color: 'rgba(255,255,255,0.04)' } 
-                            },
-                            x: { 
-                                ticks: { color: 'rgba(255,255,255,0.4)' },
-                                grid: { display: false } 
+                const renderWeekly = () => {
+                    new Chart(weeklyCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(weeklyData),
+                            datasets: [{
+                                label: @json(__('messages.chart_lessons')),
+                                data: Object.values(weeklyData),
+                                backgroundColor: (ctx) => {
+                                    const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                                    g.addColorStop(0, 'rgba(139, 92, 246, 0.7)');
+                                    g.addColorStop(1, 'rgba(139, 92, 246, 0.15)');
+                                    return g;
+                                },
+                                borderRadius: 8,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { 
+                                    beginAtZero: true, 
+                                    ticks: { stepSize: 1, color: 'rgba(255,255,255,0.4)' }, 
+                                    grid: { color: 'rgba(255,255,255,0.04)' } 
+                                },
+                                x: { 
+                                    ticks: { color: 'rgba(255,255,255,0.4)' },
+                                    grid: { display: false } 
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('weeklyChart', renderWeekly);
+                } else {
+                    renderWeekly();
+                }
             }
 
             const subjectCanvas = document.getElementById('subjectChart');
             if (subjectCanvas) {
-                new Chart(subjectCanvas, {
-                    type: 'radar',
-                    data: {
-                        labels: Object.keys(subjectData),
-                        datasets: [{
-                            label: @json(__('messages.score_percent')),
-                            data: Object.values(subjectData),
-                            backgroundColor: 'rgba(139, 92, 246, 0.12)',
-                            borderColor: 'rgba(139, 92, 246, 0.6)',
-                            borderWidth: 2,
-                            pointBackgroundColor: 'rgba(139, 92, 246, 0.8)',
-                            pointBorderColor: 'rgba(139, 92, 246, 0.3)',
-                            pointHoverRadius: 6,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                beginAtZero: true, 
-                                max: 100, 
-                                ticks: { stepSize: 20, color: 'rgba(255,255,255,0.2)', showLabelBackdrop: false },
-                                grid: { color: 'rgba(255,255,255,0.05)' },
-                                angleLines: { color: 'rgba(255,255,255,0.05)' },
-                                pointLabels: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
-                            }
+                const renderSubject = () => {
+                    new Chart(subjectCanvas, {
+                        type: 'radar',
+                        data: {
+                            labels: Object.keys(subjectData),
+                            datasets: [{
+                                label: @json(__('messages.score_percent')),
+                                data: Object.values(subjectData),
+                                backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                                borderColor: 'rgba(139, 92, 246, 0.6)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(139, 92, 246, 0.8)',
+                                pointBorderColor: 'rgba(139, 92, 246, 0.3)',
+                                pointHoverRadius: 6,
+                            }]
                         },
-                        plugins: { legend: { display: false } }
-                    }
-                });
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    beginAtZero: true, 
+                                    max: 100, 
+                                    ticks: { stepSize: 20, color: 'rgba(255,255,255,0.2)', showLabelBackdrop: false },
+                                    grid: { color: 'rgba(255,255,255,0.05)' },
+                                    angleLines: { color: 'rgba(255,255,255,0.05)' },
+                                    pointLabels: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
+                                }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                };
+                if (window.lazyRenderChart) {
+                    window.lazyRenderChart('subjectChart', renderSubject);
+                } else {
+                    renderSubject();
+                }
             }
         }
     } catch (e) {

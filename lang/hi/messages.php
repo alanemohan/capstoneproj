@@ -35,6 +35,7 @@ return [
     'system_overview' => 'सिस्टम अवलोकन',
     'quick_actions' => 'त्वरित कार्रवाई',
     'tips' => 'सुझाव',
+    'live_classes' => 'लाइव कक्षाएं',
 
     // Student Dashboard
     'keep_learning' => 'सीखते रहें, हर पाठ आपको आपके लक्ष्यों के करीब लाता है!',

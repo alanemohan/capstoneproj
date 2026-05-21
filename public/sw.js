@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nabha-lms-enterprise-cache-v1';
+const CACHE_NAME = 'nabha-lms-enterprise-cache-v2';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
@@ -12,6 +12,7 @@ const PRECACHE_ASSETS = [
     '/icons/icon-512x512.png',
     '/icons/maskable-icon.png',
     '/favicon.ico',
+    '/images/login_bg.png?v=2026',
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap'
 ];
 

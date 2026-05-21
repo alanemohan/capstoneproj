@@ -230,7 +230,7 @@
                                                             <video controls preload="metadata"
                                                                    class="w-full" style="max-height:500px;"
                                                                    onerror="this.parentElement.innerHTML='<div class=\'p-6 text-center text-white text-xs font-semibold\'>Video file could not be loaded. <a href=\'{{ $block->file_url }}\' target=\'_blank\' class=\'underline\'>Try opening directly</a>.</div>'">
-                                                                <source src="{{ $block->file_url }}" type="video/mp4">
+                                                                <source src="{{ $block->file_url }}">
                                                                 <p class="text-white p-4 text-xs font-semibold">Your browser does not support HTML5 video.</p>
                                                             </video>
                                                         </div>
@@ -306,7 +306,7 @@
                                                     <div class="rounded-xl overflow-hidden bg-black shadow-inner">
                                                         <video controls preload="metadata" class="w-full" style="max-height:500px;"
                                                                onerror="this.parentElement.innerHTML='<div class=\'p-4 text-center text-white text-xs font-semibold\'>Video could not be loaded.</div>'">
-                                                            <source src="{{ $lesson->file_url }}" type="video/mp4">
+                                                            <source src="{{ $lesson->file_url }}">
                                                         </video>
                                                     </div>
                                                 @elseif($lesson->file_type === 'pdf' && $lesson->file_path)

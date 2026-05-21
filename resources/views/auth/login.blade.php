@@ -173,7 +173,6 @@
                             <input type="checkbox" name="remember" class="rounded border-white/20 bg-white/[0.04] text-[#8b5cf6] focus:ring-[#8b5cf6]/30">
                             Remember me
                         </label>
-                        <a href="#" class="text-xs text-[#8b5cf6] font-bold hover:underline">Forgot Password?</a>
                     </div>
 
                     <button type="submit"
@@ -253,7 +252,7 @@ document.querySelectorAll('a[data-lang]').forEach((el) => {
     /* Full bleed background on left for large devices */
     @media (min-width: 1024px) {
         .min-h-screen {
-            background-image: linear-gradient(to right, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 50%, rgba(9, 6, 22, 0.95) 75%, #090616 100%), url('/images/login_bg.png');
+            background-image: linear-gradient(to right, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 50%, rgba(9, 6, 22, 0.95) 75%, #090616 100%), url('/images/login_bg.png?v=2026');
             background-size: auto 100%, cover;
             background-position: left center, left center;
             background-repeat: no-repeat;
@@ -263,7 +262,7 @@ document.querySelectorAll('a[data-lang]').forEach((el) => {
     /* Mobile-first fallback background */
     @media (max-width: 1023px) {
         .min-h-screen {
-            background-image: linear-gradient(to bottom, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 60%, rgba(9, 6, 22, 0.95) 85%, #090616 100%), url('/images/login_bg.png');
+            background-image: linear-gradient(to bottom, rgba(9, 6, 22, 0.4) 0%, rgba(9, 6, 22, 0.8) 60%, rgba(9, 6, 22, 0.95) 85%, #090616 100%), url('/images/login_bg.png?v=2026');
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
