@@ -164,6 +164,40 @@ Translation files are maintained in the `lang/` directory.
 - Configure the web server to point to the `public/` directory.
 - Ensure MySQL, queue workers, and scheduler are configured if background jobs are used.
 
+## Render Deployment
+
+Use Render for this project. You do not need Vercel unless you split the frontend into a separate static app.
+
+1. Push the latest code to GitHub.
+2. Sign in to Render and click **New +** > **Blueprint**.
+3. Connect the GitHub repo `alanemohan/capstoneproj`.
+4. Render will detect `render.yaml` and create a web service.
+5. Keep these settings:
+   - Environment: `Docker`
+   - Plan: `Free`
+   - Auto Deploy: `On`
+   - Health Check Path: `/`
+6. Add these environment variables in Render:
+   - `APP_NAME=AI-Powered LMS`
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `APP_URL=<your-render-service-url>`
+   - `APP_KEY=<paste the value from php artisan key:generate --show>`
+   - `DB_CONNECTION=sqlite`
+   - `SESSION_DRIVER=file`
+   - `CACHE_STORE=file`
+   - `QUEUE_CONNECTION=sync`
+7. Deploy the service.
+8. After the first deploy, open the Render shell and verify the app starts correctly.
+9. If you change code later, push to GitHub and Render will redeploy automatically.
+
+### If You Want a More Stable Production Setup
+
+- Use a managed PostgreSQL database instead of SQLite.
+- Keep `APP_KEY` fixed and never regenerate it on every restart.
+- Move queues to a dedicated worker only if you need background jobs.
+- Add persistent storage if you want uploaded files and local database files to survive restarts.
+
 ## Future Enhancements
 
 - Better real-time notifications through WebSockets

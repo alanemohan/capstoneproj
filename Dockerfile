@@ -34,4 +34,4 @@ RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoload
 
 EXPOSE 10000
 
-CMD sh -c "[ -f .env ] || cp .env.example .env && php artisan key:generate --force && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port ${PORT}"
+CMD sh -c "php artisan serve --host 0.0.0.0 --port ${PORT}"
